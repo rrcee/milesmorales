@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Spider-Verse | @sherikumrishi</title>
     <style>
         :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --text-sub: rgba(255, 255, 255, 0.4); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Prevent bounce and scroll on mobile */
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; position: fixed; }
 
         #bg-blur {
@@ -15,42 +17,53 @@
             filter: blur(60px) brightness(0.2); transition: background-image 1.2s ease; z-index: 0;
         }
 
+        /* 3-Section Layout with Safe Padding */
         main {
             position: relative; z-index: 1; height: 100dvh; width: 100vw;
-            display: grid; grid-template-rows: 15% 1fr 15%; align-items: center; justify-items: center;
+            display: grid; grid-template-rows: 12% 1fr 12%; 
+            align-items: center; justify-items: center;
+            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
         }
 
-        #image-info { font-size: 0.65rem; font-weight: 300; letter-spacing: 5px; text-transform: uppercase; color: var(--text-sub); text-align: center; padding: 0 10px; }
+        #image-info { 
+            font-size: 0.6rem; font-weight: 300; letter-spacing: 4px; 
+            text-transform: uppercase; color: var(--text-sub); text-align: center; 
+            max-width: 80%; line-height: 1.4;
+        }
 
-        .stage { display: flex; align-items: center; justify-content: center; gap: 20px; width: 95%; height: 100%; }
+        .stage { display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; height: 100%; }
 
-        /* Responsive Frame for all Mobile Ratios */
+        /* Smaller, Safe-Ratio Frame for Poco X6 and tall devices */
         .image-frame {
-            position: relative; width: 75vw; max-width: 800px; aspect-ratio: 16 / 9;
-            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            border: 1px solid var(--border); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; padding: 5px; overflow: hidden;
+            position: relative; 
+            width: 65vw; /* Reduced from 75vw */
+            aspect-ratio: 16 / 9;
+            background: var(--glass); 
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; 
+            padding: 8px; overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
-        #loader { position: absolute; width: 25px; height: 25px; border: 2px solid var(--border); border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; z-index: 5; }
+        #loader { position: absolute; width: 20px; height: 20px; border: 2px solid var(--border); border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; z-index: 5; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.8s ease; }
         .show { opacity: 1; }
 
-        .nav-btn { background: transparent; border: 1px solid var(--border); color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .nav-btn svg { width: 16px; fill: rgba(255,255,255,0.7); }
+        .nav-btn { background: transparent; border: 1px solid var(--border); color: white; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .nav-btn svg { width: 14px; fill: rgba(255,255,255,0.7); }
 
-        /* Full Screen Start Overlay */
         #start-overlay {
             position: fixed; inset: 0; background: #000; z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;
+            transition: opacity 0.5s ease;
         }
 
-        footer { width: 100%; display: flex; justify-content: center; }
-        footer a { color: var(--text-sub); text-decoration: none; font-size: 0.55rem; letter-spacing: 2px; }
+        footer { width: 100%; display: flex; justify-content: center; align-items: center; }
+        footer a { color: var(--text-sub); text-decoration: none; font-size: 0.5rem; letter-spacing: 2px; }
 
-        /* Mobile Rotate Warning */
         #rotate-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
         @media screen and (orientation: portrait) { #rotate-overlay { display: flex; } }
         @keyframes rot { 0% {transform:rotate(0deg)} 50%,100% {transform:rotate(-90deg)} }
@@ -61,14 +74,17 @@
 <div id="bg-blur"></div>
 
 <div id="start-overlay" onclick="startApp()">
-    <p style="letter-spacing: 8px; font-size: 0.8rem;">ENTER SHOWCASE</p>
-    <p style="color: var(--text-sub); font-size: 0.5rem; margin-top: 15px;">TAP TO ACTIVATE FULLSCREEN & AUDIO</p>
+    <p style="letter-spacing: 8px; font-size: 0.75rem;">ENTER SHOWCASE</p>
+    <p style="color: var(--text-sub); font-size: 0.45rem; margin-top: 15px;">TAP TO START CINEMATIC MODE</p>
 </div>
 
-<div id="rotate-overlay"><div style="width:35px;height:60px;border:2px solid #fff;border-radius:5px;animation:rot 2s infinite"></div><p style="margin-top:20px;font-size:0.6rem;letter-spacing:3px">ROTATE FOR CINEMATIC VIEW</p></div>
+<div id="rotate-overlay">
+    <div style="width:30px;height:50px;border:2px solid #fff;border-radius:4px;animation:rot 2s infinite"></div>
+    <p style="margin-top:20px;font-size:0.55rem;letter-spacing:3px;text-align:center;">ROTATE DEVICE<br><span style="color:var(--text-sub); font-size: 0.45rem;">FOR THE FULL EXPERIENCE</span></p>
+</div>
 
 <main>
-    <div id="image-info">LOADING...</div>
+    <div id="image-info">SELECT TO START</div>
     <div class="stage">
         <button class="nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
         <div class="image-frame"><div id="loader"></div><img id="view" src=""></div>
@@ -85,8 +101,9 @@
     const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), info = document.getElementById('image-info'), track = document.getElementById('track'), ldr = document.getElementById('loader'), start = document.getElementById('start-overlay');
 
     function startApp() {
-        if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
-        else if (document.documentElement.webkitRequestFullscreen) { document.documentElement.webkitRequestFullscreen(); } // iOS support
+        const doc = window.document.documentElement;
+        if (doc.requestFullscreen) doc.requestFullscreen();
+        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
         start.style.opacity = '0';
         setTimeout(() => { start.style.display = 'none'; }, 500);
         nav(0); 
@@ -119,8 +136,6 @@
         current = (current + d + images.length) % images.length;
         update();
     }
-
-    window.addEventListener('keydown', (e) => { if(e.key === "ArrowLeft") nav(-1); if(e.key === "ArrowRight") nav(1); });
 </script>
 </body>
 </html>

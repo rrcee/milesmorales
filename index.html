@@ -2,94 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spider-Verse Showcase | @sherikumrishi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spider-Verse | @sherikumrishi</title>
     <style>
-        :root {
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.1);
-            --text-sub: rgba(255, 255, 255, 0.4);
-            --accent: #fff;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body, html { width: 100vw; height: 100vh; overflow: hidden; background-color: #000; color: white; }
+        :root { --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); --text-sub: rgba(255, 255, 255, 0.4); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; position: fixed; }
 
         #bg-blur {
-            position: fixed; inset: -5%; width: 110%; height: 110%;
+            position: fixed; inset: -10%; width: 120%; height: 120%;
             background-size: cover; background-position: center;
             filter: blur(60px) brightness(0.2); transition: background-image 1.2s ease; z-index: 0;
         }
 
         main {
-            position: relative; z-index: 1; height: 100vh; width: 100vw;
-            display: grid; grid-template-rows: 100px 1fr 120px; align-items: center; justify-items: center;
+            position: relative; z-index: 1; height: 100dvh; width: 100vw;
+            display: grid; grid-template-rows: 15% 1fr 15%; align-items: center; justify-items: center;
         }
 
-        #image-info {
-            font-size: 0.7rem; font-weight: 300; letter-spacing: 6px;
-            text-transform: uppercase; color: var(--text-sub); text-align: center;
-        }
+        #image-info { font-size: 0.65rem; font-weight: 300; letter-spacing: 5px; text-transform: uppercase; color: var(--text-sub); text-align: center; padding: 0 10px; }
 
-        .stage {
-            display: flex; align-items: center; justify-content: center;
-            gap: 40px; width: 100%; height: 100%;
-        }
+        .stage { display: flex; align-items: center; justify-content: center; gap: 20px; width: 95%; height: 100%; }
 
+        /* Responsive Frame for all Mobile Ratios */
         .image-frame {
-            position: relative;
-            width: 60vw; aspect-ratio: 16 / 9;
+            position: relative; width: 75vw; max-width: 800px; aspect-ratio: 16 / 9;
             background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--border); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            padding: 10px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; padding: 5px; overflow: hidden;
         }
 
-        /* Loading Spinner */
-        #loader {
-            position: absolute; width: 30px; height: 30px;
-            border: 2px solid var(--border); border-top: 2px solid #fff;
-            border-radius: 50%; animation: spin 1s linear infinite;
-            display: none; z-index: 5;
-        }
-
+        #loader { position: absolute; width: 25px; height: 25px; border: 2px solid var(--border); border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; display: none; z-index: 5; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.8s ease; z-index: 2; }
+        img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.8s ease; }
         .show { opacity: 1; }
 
-        .nav-btn {
-            background: transparent; border: 1px solid var(--border);
-            color: white; width: 44px; height: 44px; border-radius: 50%;
-            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+        .nav-btn { background: transparent; border: 1px solid var(--border); color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .nav-btn svg { width: 16px; fill: rgba(255,255,255,0.7); }
+
+        /* Full Screen Start Overlay */
+        #start-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;
         }
-        .nav-btn:hover { background: var(--glass); border-color: rgba(255,255,255,0.4); }
-        .nav-btn svg { width: 18px; fill: rgba(255,255,255,0.7); }
 
         footer { width: 100%; display: flex; justify-content: center; }
-        footer a { color: var(--text-sub); text-decoration: none; font-size: 0.6rem; letter-spacing: 2px; transition: 0.3s; }
-        footer a:hover { color: #fff; }
+        footer a { color: var(--text-sub); text-decoration: none; font-size: 0.55rem; letter-spacing: 2px; }
 
-        #rotate-overlay {
-            display: none; position: fixed; inset: 0; background: #000; z-index: 9999;
-            flex-direction: column; justify-content: center; align-items: center;
-        }
+        /* Mobile Rotate Warning */
+        #rotate-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
         @media screen and (orientation: portrait) { #rotate-overlay { display: flex; } }
+        @keyframes rot { 0% {transform:rotate(0deg)} 50%,100% {transform:rotate(-90deg)} }
     </style>
 </head>
 <body>
 
 <div id="bg-blur"></div>
-<div id="rotate-overlay"><div style="width:40px;height:70px;border:2px solid #fff;border-radius:6px;animation:rot 2s infinite"></div><p style="margin-top:20px;font-size:0.7rem;letter-spacing:3px">PLEASE ROTATE DEVICE</p></div>
+
+<div id="start-overlay" onclick="startApp()">
+    <p style="letter-spacing: 8px; font-size: 0.8rem;">ENTER SHOWCASE</p>
+    <p style="color: var(--text-sub); font-size: 0.5rem; margin-top: 15px;">TAP TO ACTIVATE FULLSCREEN & AUDIO</p>
+</div>
+
+<div id="rotate-overlay"><div style="width:35px;height:60px;border:2px solid #fff;border-radius:5px;animation:rot 2s infinite"></div><p style="margin-top:20px;font-size:0.6rem;letter-spacing:3px">ROTATE FOR CINEMATIC VIEW</p></div>
 
 <main>
-    <div id="image-info">CLICK TO START</div>
+    <div id="image-info">LOADING...</div>
     <div class="stage">
         <button class="nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-        <div class="image-frame">
-            <div id="loader"></div>
-            <img id="view" src="">
-        </div>
+        <div class="image-frame"><div id="loader"></div><img id="view" src=""></div>
         <button class="nav-btn" onclick="nav(1)"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
     </div>
     <footer><a href="https://instagram.com/sherikumrishi" target="_blank">MADE BY @SHERIKUMRISHI</a></footer>
@@ -99,21 +81,22 @@
 
 <script>
     const images = ["spdr/2 sides of the same coin.png","spdr/42nd & Broadway.png","spdr/acrobatics 1.png","spdr/aint as simple as it looks.png","spdr/creepy crawler.png","spdr/criterion 2.png","spdr/criterion.png","spdr/Divin down.png","spdr/dont mess with the spider.png","spdr/gold n gunz.png","spdr/I HAVE THE POWER!!!.png","spdr/I’m done pulling my punches..png","spdr/its bitsy spider.png","spdr/its in my DNA.png","spdr/kaboom!.png","spdr/last dance.png","spdr/like an angel.png","spdr/look into my eyes.png","spdr/nah ima do my own thing now.png","spdr/no matter how many times i fall i always get back up.png","spdr/nothing personal.png","spdr/one day ima be in the avengers.png","spdr/Parallel Paths.png","spdr/power within.png","spdr/Prowler & Pupil.png","spdr/purple reign.png","spdr/responsibilities.png","spdr/Rise Of Miles.png","spdr/skiing in new york.png","spdr/snowy manhattan.png","spdr/thats all it is a leap of faith.png","spdr/THE BOY WHO GOT BIT BY A SPIDER.png","spdr/THE ENERGY FLOWS.png","spdr/Unstoppable flight.png","spdr/Uptown Pride.png","spdr/was it worth it.png","spdr/world of acrobatics.png","spdr/YN.png"];
-    
     let current = 0, first = true;
-    const view = document.getElementById('view'), bg = document.getElementById('bg-blur'),
-          info = document.getElementById('image-info'), track = document.getElementById('track'),
-          ldr = document.getElementById('loader');
+    const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), info = document.getElementById('image-info'), track = document.getElementById('track'), ldr = document.getElementById('loader'), start = document.getElementById('start-overlay');
+
+    function startApp() {
+        if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
+        else if (document.documentElement.webkitRequestFullscreen) { document.documentElement.webkitRequestFullscreen(); } // iOS support
+        start.style.opacity = '0';
+        setTimeout(() => { start.style.display = 'none'; }, 500);
+        nav(0); 
+    }
 
     function update() {
         const path = images[current];
         const name = path.split('/').pop().replace(/\.[^/.]+$/, "");
-        const audioPath = `audio/${name}.mp3`;
-
         view.classList.remove('show');
         ldr.style.display = 'block';
-
-        // 1. Image Loading Logic
         const tempImg = new Image();
         tempImg.src = encodeURI(path);
         tempImg.onload = () => {
@@ -122,20 +105,13 @@
             info.innerText = name;
             ldr.style.display = 'none';
             view.classList.add('show');
-            
-            // 2. Music Sync Logic (Only play after image is ready)
-            if (!first) loadAudio(encodeURI(audioPath));
+            if (!first) { loadAudio(`audio/${encodeURIComponent(name)}.mp3`); }
         };
     }
 
     function loadAudio(src) {
-        track.pause();
-        track.src = src;
-        track.load();
-        // 'canplaythrough' ensures audio won't stutter
-        track.addEventListener('canplaythrough', () => {
-            track.play().catch(e => console.log("User interaction required"));
-        }, { once: true });
+        track.pause(); track.src = src; track.load();
+        track.addEventListener('canplaythrough', () => { track.play(); }, { once: true });
     }
 
     function nav(d) {
@@ -144,11 +120,7 @@
         update();
     }
 
-    window.addEventListener('keydown', (e) => {
-        if(e.key === "ArrowLeft") nav(-1);
-        if(e.key === "ArrowRight") nav(1);
-    });
+    window.addEventListener('keydown', (e) => { if(e.key === "ArrowLeft") nav(-1); if(e.key === "ArrowRight") nav(1); });
 </script>
-<style> @keyframes rot { 0% {transform:rotate(0deg)} 50%,100% {transform:rotate(-90deg)} } </style>
 </body>
 </html>

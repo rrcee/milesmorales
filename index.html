@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spider-Verse | @sherikumrishi</title>
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-sub: rgba(255, 255, 255, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body, html { width: 100vw; height: 100vh; overflow: hidden; background-color: #000; color: white; }
+
+        /* Dynamic Background */
+        #bg-blur {
+            position: fixed; inset: -5%; width: 110%; height: 110%;
+            background-size: cover; background-position: center;
+            filter: blur(60px) brightness(0.2); transition: background-image 1s ease; z-index: 0;
+        }
+
+        /* Layout Structure */
+        main {
+            position: relative; z-index: 1; height: 100vh; width: 100vw;
+            display: grid; grid-template-rows: 100px 1fr 120px; align-items: center; justify-items: center;
+        }
+
+        #image-info {
+            font-size: 0.7rem; font-weight: 300; letter-spacing: 6px;
+            text-transform: uppercase; color: var(--text-sub); text-align: center;
+        }
+
+        .stage {
+            display: flex; align-items: center; justify-content: center;
+            gap: 40px; width: 100%; height: 100%;
+        }
+
+        /* Fixed 16:9 Ratio Frame */
+        .image-frame {
+            width: 60vw; 
+            aspect-ratio: 16 / 9; /* Perfect match for your 16:9 images */
+            background: var(--glass); 
+            backdrop-filter: blur(30px); 
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border); 
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px; box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+        }
+
+        img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.8s ease; }
+        .show { opacity: 1; }
+
+        .nav-btn {
+            background: transparent; border: 1px solid var(--border);
+            color: white; width: 44px; height: 44px; border-radius: 50%;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+        }
+        .nav-btn:hover { background: var(--glass); border-color: rgba(255,255,255,0.4); }
+        .nav-btn svg { width: 18px; fill: rgba(255,255,255,0.7); }
+
+        footer { width: 100%; display: flex; justify-content: center; }
+        footer a {
+            color: var(--text-sub); text-decoration: none; font-size: 0.6rem;
+            letter-spacing: 2px; transition: 0.3s;
+        }
+        footer a:hover { color: #fff; }
+
+        /* Mobile Rotate Warning (Portrait only) */
+        #rotate-overlay {
+            display: none; position: fixed; inset: 0; background: #000; z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+        
+        @media screen and (orientation: portrait) {
+            #rotate-overlay { display: flex; }
+        }
+
+        .phone-icon {
+            width: 40px; height: 70px; border: 2px solid #fff; border-radius: 6px;
+            position: relative; animation: rotateAnim 2s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes rotateAnim {
+            0% { transform: rotate(0deg); }
+            50%, 100% { transform: rotate(-90deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="bg-blur"></div>
+
+<div id="rotate-overlay">
+    <div class="phone-icon"></div>
+    <p style="font-size: 0.7rem; letter-spacing: 3px; color: #fff;">PLEASE ROTATE YOUR DEVICE</p>
+</div>
+
+<main>
+    <div id="image-info">SELECT TO START</div>
+
+    <div class="stage">
+        <button class="nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+        <div class="image-frame"><img id="view" src=""></div>
+        <button class="nav-btn" onclick="nav(1)"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+    </div>
+
+    <footer>
+        <a href="https://instagram.com/sherikumrishi" target="_blank">MADE BY @SHERIKUMRISHI (INSTAGRAM)</a>
+    </footer>
+</main>
+
+<audio id="track" loop></audio>
+
+<script>
+    const images = [
+        "spdr/2 sides of the same coin.png", "spdr/42nd & Broadway.png", "spdr/acrobatics 1.png", "spdr/aint as simple as it looks.png",
+        "spdr/creepy crawler.png", "spdr/criterion 2.png", "spdr/criterion.png", "spdr/Divin down.png",
+        "spdr/dont mess with the spider.png", "spdr/gold n gunz.png", "spdr/I HAVE THE POWER!!!.png", "spdr/I’m done pulling my punches..png",
+        "spdr/its bitsy spider.png", "spdr/its in my DNA.png", "spdr/kaboom!.png", "spdr/last dance.png",
+        "spdr/like an angel.png", "spdr/look into my eyes.png", "spdr/nah ima do my own thing now.png",
+        "spdr/no matter how many times i fall i always get back up.png", "spdr/nothing personal.png",
+        "spdr/one day ima be in the avengers.png", "spdr/Parallel Paths.png", "spdr/power within.png",
+        "spdr/Prowler & Pupil.png", "spdr/purple reign.png", "spdr/responsibilities.png", "spdr/Rise Of Miles.png",
+        "spdr/skiing in new york.png", "spdr/snowy manhattan.png", "spdr/thats all it is a leap of faith.png",
+        "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/THE ENERGY FLOWS.png", "spdr/Unstoppable flight.png",
+        "spdr/Uptown Pride.png", "spdr/was it worth it.png", "spdr/world of acrobatics.png", "spdr/YN.png"
+    ];
+
+    let current = 0;
+    const view = document.getElementById('view');
+    const bg = document.getElementById('bg-blur');
+    const info = document.getElementById('image-info');
+    const track = document.getElementById('track');
+    let firstInteraction = true;
+
+    function update() {
+        const path = images[current];
+        const name = path.split('/').pop().replace(/\.[^/.]+$/, ""); 
+        const audioPath = `audio/${name}.mp3`;
+
+        view.classList.remove('show');
+        
+        setTimeout(() => {
+            view.src = encodeURI(path);
+            bg.style.backgroundImage = `url('${encodeURI(path)}')`;
+            info.innerText = name;
+            view.onload = () => view.classList.add('show');
+            
+            if (!firstInteraction) swapAudio(encodeURI(audioPath));
+        }, 300);
+    }
+
+    function swapAudio(newSrc) {
+        // Crossfade logic
+        let fadeOut = setInterval(() => {
+            if (track.volume > 0.05) { track.volume -= 0.05; } 
+            else {
+                clearInterval(fadeOut);
+                track.src = newSrc;
+                track.load();
+                track.play().then(() => {
+                    let fadeIn = setInterval(() => {
+                        if (track.volume < 0.95) { track.volume += 0.05; } 
+                        else { track.volume = 1; clearInterval(fadeIn); }
+                    }, 100);
+                }).catch(e => console.log("Audio Playback started."));
+            }
+        }, 50);
+    }
+
+    function nav(dir) {
+        if (firstInteraction) {
+            firstInteraction = false;
+            track.volume = 0;
+        }
+        current = (current + dir + images.length) % images.length;
+        update();
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowLeft") nav(-1);
+        if(e.key === "ArrowRight") nav(1);
+    });
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>

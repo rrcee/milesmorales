@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Miles Morales | Project Titan 2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --color1: #1a1a1a;
@@ -16,7 +17,7 @@
             --ink: #ffffff;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; cursor: default; font-family: 'Inter', system-ui, sans-serif; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; cursor: default; font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; }
         
         #gradient-bg {
             position: fixed; inset: 0;
@@ -25,26 +26,17 @@
             animation: gradientShift 15s ease infinite;
             z-index: 0;
         }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
         body::before {
             content: ''; position: fixed; inset: 0;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none; z-index: 1;
+            background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 50px 50px; pointer-events: none; z-index: 1;
         }
-        
         .hud-filter::before {
             content: ""; position: fixed; inset: 0;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.12) 50%), 
-                        linear-gradient(90deg, rgba(255,0,0,0.008), rgba(0,255,0,0.008), rgba(0,0,255,0.008));
-            background-size: 100% 4px, 4px 100%; pointer-events: none; z-index: 10;
-            opacity: 1;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.12) 50%), linear-gradient(90deg, rgba(255,0,0,0.008), rgba(0,255,0,0.008), rgba(0,0,255,0.008));
+            background-size: 100% 4px, 4px 100%; pointer-events: none; z-index: 10; opacity: 1;
         }
         body::after {
             content: ''; position: fixed; inset: 0;
@@ -52,137 +44,53 @@
             pointer-events: none; z-index: 2;
         }
 
-        #progress-container { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 12px;
-            background: rgba(255,255,255,0.08); border-bottom: 4px solid var(--ink); z-index: 1001;
-        }
-        #progress-bar { 
-            width: 0%; height: 100%; background: var(--accent); 
-            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-            box-shadow: 0 0 20px var(--accent);
-        }
+        #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 12px; background: rgba(255,255,255,0.08); border-bottom: 4px solid var(--ink); z-index: 1001; }
+        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 20px var(--accent); }
 
         .controls { position: fixed; top: 25px; right: 25px; z-index: 1005; display: flex; gap: 12px; }
-        
         .icon-btn, .nav-btn {
-            background: var(--glass); 
-            border: 5px solid var(--ink);
-            color: var(--ink); 
-            width: 58px; height: 58px; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; 
-            box-shadow: 8px 8px 0px 0px var(--ink);
-            transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
-            font-size: 20px;
+            background: var(--glass); border: 5px solid var(--ink); color: var(--ink);
+            width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 8px 8px 0px 0px var(--ink); transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1); font-size: 20px;
         }
-        .icon-btn:active, .nav-btn:active {
-            transform: translate(4px, 4px);
-            box-shadow: 2px 2px 0px 0px var(--ink);
-        }
+        .icon-btn:active, .nav-btn:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0px 0px var(--ink); }
         .icon-btn:hover, .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         main { position: relative; z-index: 3; height: 100vh; width: 100vw; display: grid; grid-template-rows: 18% 1fr 16%; align-items: center; justify-items: center; }
 
-        #image-info {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.85rem; font-weight: 900; letter-spacing: -2px;
-            text-transform: uppercase; 
-            background: var(--accent);
-            color: #000;
-            padding: 8px 22px; 
-            border: 6px solid var(--ink);
-            box-shadow: 10px 10px 0px 0px var(--ink);
-            transition: all 0.4s ease;
-        }
+        #image-info { font-family: 'Space Grotesk', sans-serif; font-size: 1.85rem; font-weight: 900; letter-spacing: -2px; text-transform: uppercase; background: var(--accent); color: #000; padding: 8px 22px; border: 6px solid var(--ink); box-shadow: 10px 10px 0px 0px var(--ink); transition: all 0.4s ease; }
 
         .stage { display: flex; align-items: center; justify-content: center; gap: 35px; width: 100%; max-width: 1450px; padding: 0 20px; }
 
         .image-frame {
-            position: relative; width: 78vw; max-width: 920px; aspect-ratio: 16 / 9;
-            background: #000; 
-            border: 7px solid var(--ink);
-            border-radius: 3px;
-            display: flex; align-items: center; justify-content: center; 
-            padding: 12px; overflow: hidden;
-            box-shadow: 14px 14px 0px 0px var(--accent);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            transform: scale(0.92); opacity: 0;
+            position: relative; width: 78vw; max-width: 920px; aspect-ratio: 16 / 9; background: #000; border: 7px solid var(--ink); border-radius: 3px;
+            display: flex; align-items: center; justify-content: center; padding: 12px; overflow: hidden; box-shadow: 14px 14px 0px 0px var(--accent);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.92); opacity: 0;
         }
-        .image-frame.active { 
-            transform: scale(1); opacity: 1; 
-            border-color: var(--accent); 
-            box-shadow: 18px 18px 0px 0px var(--accent);
-        }
+        .image-frame.active { transform: scale(1); opacity: 1; border-color: var(--accent); box-shadow: 18px 18px 0px 0px var(--accent); }
 
-        #loader { 
-            position: absolute; width: 42px; height: 42px; 
-            border: 6px solid var(--border); border-top: 6px solid var(--accent); 
-            border-radius: 50%; animation: spin 0.7s linear infinite; 
-            z-index: 10;
-        }
+        #loader { position: absolute; width: 42px; height: 42px; border: 6px solid var(--border); border-top: 6px solid var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; z-index: 10; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* CINEMATIC IMAGE TRANSITIONS */
         .main-img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: opacity 0.85s cubic-bezier(0.23, 1, 0.32, 1), 
-                        transform 1.1s cubic-bezier(0.23, 1, 0.32, 1);
-            opacity: 0;
-            transform: scale(1.08) translateY(15px);
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+            transition: opacity 0.85s cubic-bezier(0.23, 1, 0.32, 1), transform 1.1s cubic-bezier(0.23, 1, 0.32, 1);
+            opacity: 0; transform: scale(1.08) translateY(15px);
         }
-        .main-img.show {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-        .main-img.out {
-            opacity: 0;
-            transform: scale(0.95) translateY(-15px);
-        }
+        .main-img.show { opacity: 1; transform: scale(1) translateY(0); }
+        .main-img.out { opacity: 0; transform: scale(0.95) translateY(-15px); }
 
-        footer { 
-            width: 100%; max-width: 1350px; display: flex; justify-content: space-between; align-items: flex-end; 
-            font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 900; 
-            letter-spacing: 2px; color: var(--text-sub); padding: 0 35px 35px; text-transform: uppercase;
-        }
+        footer { width: 100%; max-width: 1350px; display: flex; justify-content: space-between; align-items: flex-end; font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 900; letter-spacing: 2px; color: var(--text-sub); padding: 0 35px 35px; text-transform: uppercase; }
         .made-by { color: white; text-decoration: none; }
 
-        #start-overlay {
-            position: fixed; inset: 0; background: var(--accent); z-index: 10000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: transform 0.9s cubic-bezier(0.8, 0, 0.2, 1);
-            border: 12px solid #000;
-        }
-        #start-overlay h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13vw; line-height: 0.75; font-weight: 900;
-            color: #000; -webkit-text-stroke: 6px #000;
-            text-align: center; letter-spacing: -8px;
-        }
-        #start-overlay .press {
-            margin-top: 30px; font-size: 1.1rem; font-weight: 900; letter-spacing: 6px;
-            background: #000; color: var(--accent);
-            padding: 14px 42px; border: 6px solid #000;
-            box-shadow: 8px 8px 0px 0px #000;
-        }
+        #start-overlay { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.9s cubic-bezier(0.8, 0, 0.2, 1); border: 12px solid #000; }
+        #start-overlay h1 { font-family: 'Space Grotesk', sans-serif; font-size: 13vw; line-height: 0.75; font-weight: 900; color: #000; -webkit-text-stroke: 6px #000; text-align: center; letter-spacing: -8px; }
+        #start-overlay .press { margin-top: 30px; font-size: 1.1rem; font-weight: 900; letter-spacing: 6px; background: #000; color: var(--accent); padding: 14px 42px; border: 6px solid #000; box-shadow: 8px 8px 0px 0px #000; }
 
-        #rotate-msg { 
-            position: fixed; inset: 0; background: #000; z-index: 9999; 
-            display: flex; justify-content: center; align-items: center; 
-            text-align: center; font-size: 0.75rem; letter-spacing: 5px; display: none;
-        }
-        @media (max-width: 650px) and (orientation: portrait) {
-            #rotate-msg { display: flex; }
-        }
+        #rotate-msg { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; justify-content: center; align-items: center; text-align: center; font-size: 0.75rem; letter-spacing: 5px; }
+        @media (max-width: 650px) and (orientation: portrait) { #rotate-msg { display: flex; } }
 
-        body.focus-mode .controls,
-        body.focus-mode #image-info,
-        body.focus-mode .nav-btn,
-        body.focus-mode footer,
-        body.focus-mode #progress-container { opacity: 0; pointer-events: none; }
+        body.focus-mode .controls, body.focus-mode #image-info, body.focus-mode .nav-btn, body.focus-mode footer, body.focus-mode #progress-container { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="hud-filter" oncontextmenu="return false;">
@@ -191,50 +99,52 @@
     <div id="progress-container"><div id="progress-bar"></div></div>
     
     <div class="controls">
-        <button class="icon-btn" onclick="toggleFilter()">
+        <button id="filterBtn" class="icon-btn" aria-label="Toggle HUD filter" title="Toggle HUD filter">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
         </button>
-        <button class="icon-btn" onclick="toggleMute()">
+        <button id="muteBtn" class="icon-btn" aria-label="Toggle audio" title="Toggle audio">
             <svg id="speaker-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
         </button>
     </div>
 
-    <div id="start-overlay" onclick="startApp()">
+    <div id="start-overlay" role="button" aria-label="Start Project Titan" tabindex="0">
         <h1>MILES<br>MORALES</h1>
         <div class="press">TAP TO LAUNCH PROJECT TITAN</div>
     </div>
 
     <main>
-        <div id="image-info">INITIALIZING MISSION...</div>
+        <div id="image-info" role="status" aria-live="polite">INITIALIZING MISSION...</div>
         
         <div class="stage" id="touch-zone">
-            <button class="nav-btn" onclick="nav(-1)">
+            <button id="prevBtn" class="nav-btn" aria-label="Previous image" title="Previous">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
             
             <div class="image-frame" id="frame">
-                <div id="loader"></div>
-                <img id="view" class="main-img" src="" crossorigin="anonymous">
-                <img id="view-next" class="main-img" src="" crossorigin="anonymous">
+                <div id="loader" aria-hidden="true"></div>
+                <!-- Two images used for crossfading. alt kept empty for decorative; image-info provides the title. -->
+                <img id="view" class="main-img" src="" alt="">
+                <img id="view-next" class="main-img" src="" alt="">
             </div>
             
-            <button class="nav-btn" onclick="nav(1)">
+            <button id="nextBtn" class="nav-btn" aria-label="Next image" title="Next">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
         </div>
 
         <footer>
             <div>MISSION STATUS: ACTIVE</div>
-            <div>GAMEPLAY BY <a href="https://instagram.com/sherikumrishi" target="_blank" class="made-by">@SHERIKUMRISHI</a></div>
+            <div>GAMEPLAY BY <a href="https://instagram.com/sherikumrishi" target="_blank" rel="noopener" class="made-by">@SHERIKUMRISHI</a></div>
         </footer>
     </main>
 
     <audio id="track" loop></audio>
 
     <script>
-        // LOCAL ABSOLUTE PATHS
-        const baseImagePath = "file:///C:/Users/U4U/Documents/GitHub/milesmorales/spdr/";
-        const baseAudioPath = "file:///C:/Users/U4U/Documents/GitHub/milesmorales/audio/";
+        // IMPORTANT: When deploying, set baseImagePath and baseAudioPath to the directory where assets are served.
+        // For local testing you may use absolute file:// URIs, but browsers often block cross-origin file requests.
+        const baseImagePath = "./spdr/";   // recommended: relative path like ./spdr/
+        const baseAudioPath = "./audio/";  // recommended: relative path like ./audio/
 
         const images = [
             "2 sides of the same coin.png","42nd & Broadway.png","acrobatics 1.png",
@@ -253,13 +163,13 @@
             "world of acrobatics.png","YN.png"
         ];
 
-        const colorMap = { /* same as before - omitted for brevity but fully included in real file */ 
+        const colorMap = {
             "2 sides of the same coin.png": {p:"#cf4d3f", s:"#dce05e"},
-            /* ... all 38 entries exactly as in previous version ... */
+            /* ... include your full colorMap entries here ... */
             "YN.png": {p:"#7da324", s:"#de5024"}
         };
 
-        let current = 0, first = true, isMuted = false, focusTimeout, direction = 1;
+        let current = 0, first = true, isMuted = false, direction = 1;
         const view = document.getElementById('view');
         const viewNext = document.getElementById('view-next');
         const info = document.getElementById('image-info');
@@ -269,99 +179,128 @@
         const pBar = document.getElementById('progress-bar');
         const frame = document.getElementById('frame');
 
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const filterBtn = document.getElementById('filterBtn');
+        const muteBtn = document.getElementById('muteBtn');
+
         function toggleFilter() { document.body.classList.toggle('hud-filter'); vibrate(8); }
-        function toggleMute() { 
-            isMuted = !isMuted; track.muted = isMuted; 
-            document.getElementById('speaker-icon').style.opacity = isMuted ? "0.35" : "1"; 
-            vibrate(8); 
-        }
+        function toggleMute() { isMuted = !isMuted; track.muted = isMuted; document.getElementById('speaker-icon').style.opacity = isMuted ? "0.35" : "1"; vibrate(8); }
+
         function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
 
         function startApp() {
-            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            // Request fullscreen if possible (user gesture required)
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
             start.style.transform = 'translateY(-120%)';
             setTimeout(() => start.style.display = 'none', 900);
-            nav(0);
+            // Ensure first image is shown after the overlay press
+            showCurrent(1);
         }
 
-        function update(dir = 1) {
+        // Build a safe URL for the image: encode filename
+        function makeImageUrl(filename) {
+            // If you need to support spaces and special chars, encodeURIComponent them.
+            return baseImagePath + encodeURIComponent(filename);
+        }
+
+        // Show current image; dir indicates navigation direction for transform
+        function showCurrent(dir = 1) {
             direction = dir;
             const filename = images[current];
-            const fullImage = baseImagePath + encodeURIComponent(filename);
+            const fullImage = makeImageUrl(filename);
             const col = colorMap[filename] || {p:"#ffffff", s:"#000000"};
-            
             document.documentElement.style.setProperty('--color1', col.p);
             document.documentElement.style.setProperty('--color2', col.s);
             document.documentElement.style.setProperty('--accent', col.p);
 
-            frame.classList.remove('active');
+            // Which element will be the incoming one
+            const incoming = direction > 0 ? viewNext : view;
+            const outgoing = direction > 0 ? view : viewNext;
+
+            // Show loader while image loads
             ldr.style.display = 'block';
 
-            // Prepare next image with directional entry
-            const nextImg = direction > 0 ? viewNext : view;
-            const oldImg = direction > 0 ? view : viewNext;
-            
-            oldImg.classList.add('out');
-            
-            setTimeout(() => {
-                nextImg.src = fullImage;
-                nextImg.style.transition = 'none';
-                nextImg.style.opacity = '0';
-                nextImg.style.transform = direction > 0 ? 
-                    'scale(1.08) translateX(60px)' : 
-                    'scale(1.08) translateX(-60px)';
-                
-                // Force reflow
-                nextImg.offsetHeight;
-                
-                nextImg.style.transition = 'opacity 0.85s cubic-bezier(0.23, 1, 0.32, 1), transform 1.1s cubic-bezier(0.23, 1, 0.32, 1)';
-                nextImg.classList.add('show');
-                
-                const title = filename.replace(/\.[^/.]+$/, "");
-                info.innerText = title;
-                info.style.transform = `rotate(${Math.random() * 5 - 2.5}deg)`;
+            // Prepare incoming state
+            incoming.classList.remove('show', 'out');
+            incoming.style.transition = 'none';
+            incoming.style.opacity = '0';
+            incoming.style.transform = direction > 0 ? 'scale(1.08) translateX(60px)' : 'scale(1.08) translateX(-60px)';
 
-                ldr.style.display = 'none';
-                
-                setTimeout(() => {
-                    frame.classList.add('active');
-                    pBar.style.width = ((current + 1) / images.length * 100) + '%';
-                    
-                    if (!first) {
-                        const fullAudio = baseAudioPath + encodeURIComponent(title) + ".mp3";
-                        track.src = fullAudio;
-                        track.play().catch(() => {});
-                        vibrate(12);
-                    }
-                    
-                    // Cleanup old image
-                    oldImg.classList.remove('out', 'show');
-                    oldImg.style.transition = 'none';
-                    oldImg.style.opacity = '0';
-                }, 100);
-            }, 420); // time for fade-out
+            // Set title and update progress
+            const title = filename.replace(/\.[^/.]+$/, "");
+            info.innerText = title;
+            info.style.transform = `rotate(${Math.random() * 5 - 2.5}deg)`;
+            pBar.style.width = ((current + 1) / images.length * 100) + '%';
+
+            // Set src and let onload handler manage the transition
+            incoming.src = fullImage;
+            // Attempt to set audio based on image title (if available) but only after first user gesture
+            if (!first) {
+                const fullAudio = baseAudioPath + encodeURIComponent(title) + ".mp3";
+                track.src = fullAudio;
+                // play may be blocked; try-catch and ignore failure
+                track.play().catch(()=>{});
+            }
         }
 
-        function nav(d) { 
-            if (first) first = false; 
-            current = (current + d + images.length) % images.length; 
-            update(d);
+        // Swap indices and call showCurrent
+        function nav(d) {
+            if (first) first = false;
+            current = (current + d + images.length) % images.length;
+            showCurrent(d);
         }
 
-        // Focus Mode, Keyboard, Swipe - unchanged
-        const handleStart = () => { focusTimeout = setTimeout(() => document.body.classList.add('focus-mode'), 650); };
-        const handleEnd = () => { clearTimeout(focusTimeout); document.body.classList.remove('focus-mode'); };
-        document.addEventListener('mousedown', handleStart);
-        document.addEventListener('mouseup', handleEnd);
-        document.addEventListener('touchstart', handleStart);
-        document.addEventListener('touchend', handleEnd);
+        // Image load / error handlers
+        function handleImageLoad(ev) {
+            const img = ev.currentTarget;
+            // hide loader, show this image, fade out outgoing
+            ldr.style.display = 'none';
 
+            // outgoing (the other image) -> add out class
+            const other = (img === view) ? viewNext : view;
+            other.classList.add('out');
+
+            // show incoming
+            requestAnimationFrame(() => {
+                img.style.transition = 'opacity 0.85s cubic-bezier(0.23, 1, 0.32, 1), transform 1.1s cubic-bezier(0.23, 1, 0.32, 1)';
+                img.classList.add('show');
+                frame.classList.add('active');
+            });
+        }
+
+        function handleImageError(ev) {
+            const img = ev.currentTarget;
+            ldr.style.display = 'none';
+            console.warn('Image failed to load:', img.src);
+            // fallback: show a very small data URI or a solid background while keeping UI responsive
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="#111"/><text x="50%" y="50%" fill="#888" font-size="20" text-anchor="middle" dominant-baseline="middle">Image not available</text></svg>');
+            img.alt = 'Image not available';
+            // still trigger load sequence for fallback
+        }
+
+        // Event wiring
+        prevBtn.addEventListener('click', () => nav(-1));
+        nextBtn.addEventListener('click', () => nav(1));
+        filterBtn.addEventListener('click', toggleFilter);
+        muteBtn.addEventListener('click', toggleMute);
+
+        start.addEventListener('click', startApp);
+        start.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') startApp(); });
+
+        view.addEventListener('load', handleImageLoad);
+        viewNext.addEventListener('load', handleImageLoad);
+        view.addEventListener('error', handleImageError);
+        viewNext.addEventListener('error', handleImageError);
+
+        // Keyboard nav
         window.addEventListener('keydown', e => {
             if (e.key === 'ArrowRight') nav(1);
             if (e.key === 'ArrowLeft') nav(-1);
             if (e.key === ' ') { e.preventDefault(); toggleMute(); }
         });
 
+        // Touch swipe
         let touchStartX = 0;
         document.getElementById('touch-zone').addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         document.getElementById('touch-zone').addEventListener('touchend', e => {
@@ -369,6 +308,34 @@
             if (touchStartX - touchEndX > 90) nav(1);
             if (touchEndX - touchStartX > 90) nav(-1);
         });
+
+        // Focus mode handling
+        let focusTimeout;
+        const handleStart = () => { focusTimeout = setTimeout(() => document.body.classList.add('focus-mode'), 650); };
+        const handleEnd = () => { clearTimeout(focusTimeout); document.body.classList.remove('focus-mode'); };
+        document.addEventListener('mousedown', handleStart);
+        document.addEventListener('mouseup', handleEnd);
+        document.addEventListener('touchstart', handleStart);
+        document.addEventListener('touchend', handleEnd);
+
+        // Preload first image to reduce blank frame when overlay is dismissed
+        (function preloadFirst() {
+            const img = new Image();
+            img.src = makeImageUrl(images[0]);
+            img.onload = () => {
+                // set initial state but don't auto-play audio until user interacts (overlay click)
+                view.src = img.src;
+                view.classList.add('show');
+                frame.classList.add('active');
+                pBar.style.width = (1 / images.length * 100) + '%';
+            };
+            img.onerror = () => { console.warn('First image failed to preload'); };
+        })();
+
+        // Optional: set a reduced-motion preference respect (not required, but good to add)
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.style.setProperty('transition-duration', '0ms');
+        }
     </script>
 </body>
 </html>

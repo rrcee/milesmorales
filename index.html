@@ -14,77 +14,75 @@
             --trans: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; transition: background-color var(--trans); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; height: 100dvh; overflow: hidden; background: #000; transition: background-color var(--trans); touch-action: manipulation; }
 
         /* --- THEME 1: CINEMATIC --- */
         body[data-theme="cinematic"] { font-family: 'Inter', sans-serif; color: white; }
         body[data-theme="cinematic"] #bg-blur {
-            position: fixed; inset: -5%; width: 110%; height: 110%;
+            position: fixed; inset: -10%; width: 120%; height: 120%;
             background-size: cover; background-position: center;
-            filter: blur(60px) brightness(0.3); z-index: 0; display: block;
+            filter: blur(40px) brightness(0.3); z-index: 0; display: block;
         }
         body[data-theme="cinematic"] .image-frame {
             border: 1px solid var(--glass-border); background: var(--glass);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 20px var(--accent);
-            border-radius: 20px;
+            border-radius: 12px;
         }
         body[data-theme="cinematic"] #image-info { 
-            font-size: 0.8rem; font-weight: 700; letter-spacing: 5px; 
-            text-transform: uppercase; color: #fff; text-shadow: 0 2px 15px rgba(0,0,0,1);
+            font-size: clamp(0.6rem, 2vw, 0.8rem); font-weight: 700; letter-spacing: 3px; 
+            text-transform: uppercase; color: #fff; text-align: center;
         }
         body[data-theme="cinematic"] .icon-btn, body[data-theme="cinematic"] .nav-btn { 
             background: var(--glass); border: 1px solid var(--glass-border); color: white; border-radius: 50%;
         }
 
-        /* --- THEME 2: NEO-BRUTALIST (Contrast Fix) --- */
+        /* --- THEME 2: NEO-BRUTALIST --- */
         body[data-theme="neo"] { 
             font-family: 'Space Grotesk', sans-serif; background-color: #FFFDF5; 
-            background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
-            background-size: 40px 40px; color: #000;
+            background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px; color: #000;
         }
         body[data-theme="neo"] #bg-blur { display: none; }
         body[data-theme="neo"] .image-frame {
-            border: 5px solid #000; background: #fff; border-radius: 0;
-            box-shadow: 15px 15px 0px 0px var(--accent);
+            border: 4px solid #000; background: #fff; border-radius: 0;
+            box-shadow: 8px 8px 0px 0px var(--accent);
         }
-        
-        /* THE FIX: We use a white text shadow and a dark background for the label 
-           to ensure that even if --secondary is dark, the "sticker" pop effect works. */
         body[data-theme="neo"] #image-info { 
-            background: var(--secondary); 
-            color: #000; /* Default black text */
-            padding: 12px 28px; 
-            border: 4px solid #000;
-            box-shadow: 8px 8px 0px 0px #000; 
-            font-weight: 900; 
-            font-size: 1.4rem; 
-            transform: rotate(-1.5deg);
-            /* This ensures that if the BG is dark, the black text has a slight "halo" to remain readable, 
-               or you can swap color: #fff if you prefer. */
-            text-shadow: 0.5px 0.5px 0px #fff, -0.5px -0.5px 0px #fff; 
+            background: var(--secondary); padding: 8px 15px; border: 3px solid #000;
+            box-shadow: 5px 5px 0px 0px #000; font-weight: 900; font-size: clamp(0.9rem, 4vw, 1.3rem);
+            transform: rotate(-1deg); text-align: center;
         }
-
         body[data-theme="neo"] .icon-btn, body[data-theme="neo"] .nav-btn { 
-            background: #fff; border: 4px solid #000; box-shadow: 5px 5px 0px #000; color: #000; 
+            background: #fff; border: 3px solid #000; box-shadow: 4px 4px 0px #000; color: #000; 
         }
 
         /* SHARED LAYOUT */
-        main { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: 120px 1fr 100px; align-items: center; justify-items: center; }
-        .controls { position: fixed; top: 30px; right: 30px; display: flex; gap: 15px; z-index: 100; }
-        .icon-btn { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        main { position: relative; z-index: 1; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px 0; }
         
-        .stage { display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; padding: 0 40px; }
-        .image-frame { width: 85vw; max-width: 950px; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; padding: 10px; position: relative; transition: all 0.6s ease; }
+        .controls { position: fixed; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 100; }
+        .icon-btn { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; padding: 0 15px; }
+        
+        /* Mobile Portrait Optimization */
+        @media (min-width: 768px) {
+            .stage { flex-direction: row; gap: 40px; }
+            .image-frame { width: 75vw; }
+        }
+
+        .image-frame { width: 100%; max-width: 900px; aspect-ratio: 9 / 16; display: flex; align-items: center; justify-content: center; padding: 5px; position: relative; transition: all 0.4s ease; }
         img { max-width: 100%; max-height: 100%; opacity: 0; transition: opacity 0.4s ease; object-fit: contain; }
         .show { opacity: 1; }
-        .nav-btn { width: 65px; height: 65px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: 0.2s; }
-        svg { fill: currentColor; }
-
-        #start { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 10px solid #000; }
-        #start h1 { font-family: 'Space Grotesk'; font-size: 10vw; line-height: 0.8; color: #fff; -webkit-text-stroke: 3px #000; text-align: center; }
         
+        .nav-container { display: flex; gap: 30px; }
+        .nav-btn { width: 55px; height: 55px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        #start { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #start h1 { font-family: 'Space Grotesk'; font-size: 15vw; line-height: 0.8; color: #fff; -webkit-text-stroke: 2px #000; }
+        
+        footer { font-size: 0.6rem; font-weight: 900; opacity: 0.5; letter-spacing: 2px; }
+
         body.focus-mode main > *:not(.stage) { opacity: 0; pointer-events: none; }
     </style>
 </head>
@@ -93,104 +91,75 @@
 <div id="bg-blur"></div>
 
 <div class="controls">
-    <button class="icon-btn" onclick="toggleTheme()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
-    <button class="icon-btn" onclick="toggleMute()"><svg id="spk" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg></button>
+    <button class="icon-btn" onclick="toggleTheme()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
+    <button class="icon-btn" onclick="toggleMute()"><svg id="spk" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg></button>
 </div>
 
 <div id="start" onclick="init()">
     <h1>MILES<br>MORALES</h1>
-    <p style="background:#fff; color:#000; padding:15px 30px; margin-top:40px; font-weight:900; border:5px solid #000; box-shadow: 8px 8px 0px #000;">TAP TO BEGIN</p>
+    <p style="background:#fff; color:#000; padding:12px 20px; margin-top:30px; font-weight:900; border:4px solid #000; font-family:'Space Grotesk';">TAP TO START</p>
 </div>
 
 <main>
     <div id="image-info">SELECT MISSION</div>
     <div class="stage">
-        <button class="nav-btn" onclick="nav(-1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
         <div class="image-frame"><img id="view" src=""></div>
-        <button class="nav-btn" onclick="nav(1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+        <div class="nav-container">
+            <button class="nav-btn" onclick="nav(-1)"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+            <button class="nav-btn" onclick="nav(1)"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+        </div>
     </div>
-    <footer style="font-size: 0.8rem; font-weight: 900; opacity: 0.5;">@SHERIKUMRISHI</footer>
+    <footer>@SHERIKUMRISHI</footer>
 </main>
 
 <audio id="track" loop></audio>
 
 <script>
-    const images = [
-        "2 sides of the same coin.png", "42nd & Broadway.png", "acrobatics 1.png", "aint as simple as it looks.png",
-        "creepy crawler.png", "criterion 2.png", "criterion.png", "Divin down.png", "dont mess with the spider.png",
-        "gold n gunz.png", "I HAVE THE POWER!!!.png", "I’m done pulling my punches..png", "its bitsy spider.png",
-        "its in my DNA.png", "kaboom!.png", "last dance.png", "like an angel.png", "look into my eyes.png",
-        "nah ima do my own thing now.png", "no matter how many times i fall i always get back up.png",
-        "nothing personal.png", "one day ima be in the avengers.png", "Parallel Paths.png", "power within.png",
-        "Prowler & Pupil.png", "purple reign.png", "responsibilities.png", "Rise Of Miles.png", "skiing in new york.png",
-        "snowy manhattan.png", "thats all it is a leap of faith.png", "THE BOY WHO GOT BIT BY A SPIDER.png",
-        "THE ENERGY FLOWS.png", "Unstoppable flight.png", "Uptown Pride.png", "was it worth it.png",
-        "world of acrobatics.png", "YN.png"
-    ];
-
-    const palettes = [
-        ["#cf4d3f", "#dce05e"], ["#c7d350", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#ee2d2d", "#1a1b26"], ["#ed2e2d", "#1a1b26"], ["#f11c1b", "#24275f"], ["#d83c19", "#966407"], ["#966407", "#e4c66e"], ["#f80d0c", "#fecd15"], ["#e6170b", "#966407"], ["#be7ce3", "#8117e3"], ["#ee2d2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#8117e3", "#be7ce3"], ["#92550d", "#ff1300"], ["#ff1300", "#1a1b26"], ["#d5653a", "#ab43be"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#364a61", "#b3cd32"], ["#dce05e", "#cf4d3f"], ["#1315cd", "#f02b2b"], ["#51348c", "#1e1746"], ["#1e1746", "#51348c"], ["#f02b2b", "#182227"], ["#e4c66e", "#f02b2b"], ["#24275f", "#eb2c2c"], ["#72b3c7", "#ee2d2d"], ["#364f98", "#e9302e"], ["#fecd15", "#419d7f"], ["#99c11f", "#c82727"], ["#929da5", "#da4647"], ["#3b535f", "#ee2d2d"], ["#f25b69", "#ca2741"], ["#757383", "#ee2d2d"], ["#7da324", "#de5024"]
-    ];
+    const images = ["2 sides of the same coin.png", "42nd & Broadway.png", "acrobatics 1.png", "aint as simple as it looks.png", "creepy crawler.png", "criterion 2.png", "criterion.png", "Divin down.png", "dont mess with the spider.png", "gold n gunz.png", "I HAVE THE POWER!!!.png", "I’m done pulling my punches..png", "its bitsy spider.png", "its in my DNA.png", "kaboom!.png", "last dance.png", "like an angel.png", "look into my eyes.png", "nah ima do my own thing now.png", "no matter how many times i fall i always get back up.png", "nothing personal.png", "one day ima be in the avengers.png", "Parallel Paths.png", "power within.png", "Prowler & Pupil.png", "purple reign.png", "responsibilities.png", "Rise Of Miles.png", "skiing in new york.png", "snowy manhattan.png", "thats all it is a leap of faith.png", "THE BOY WHO GOT BIT BY A SPIDER.png", "THE ENERGY FLOWS.png", "Unstoppable flight.png", "Uptown Pride.png", "was it worth it.png", "world of acrobatics.png", "YN.png"];
+    const palettes = [["#cf4d3f", "#dce05e"], ["#c7d350", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#ee2d2d", "#1a1b26"], ["#ed2e2d", "#1a1b26"], ["#f11c1b", "#24275f"], ["#d83c19", "#966407"], ["#966407", "#e4c66e"], ["#f80d0c", "#fecd15"], ["#e6170b", "#966407"], ["#be7ce3", "#8117e3"], ["#ee2d2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#8117e3", "#be7ce3"], ["#92550d", "#ff1300"], ["#ff1300", "#1a1b26"], ["#d5653a", "#ab43be"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#364a61", "#b3cd32"], ["#dce05e", "#cf4d3f"], ["#1315cd", "#f02b2b"], ["#51348c", "#1e1746"], ["#1e1746", "#51348c"], ["#f02b2b", "#182227"], ["#e4c66e", "#f02b2b"], ["#24275f", "#eb2c2c"], ["#72b3c7", "#ee2d2d"], ["#364f98", "#e9302e"], ["#fecd15", "#419d7f"], ["#99c11f", "#c82727"], ["#929da5", "#da4647"], ["#3b535f", "#ee2d2d"], ["#f25b69", "#ca2741"], ["#757383", "#ee2d2d"], ["#7da324", "#de5024"]];
 
     let current = 0, first = true, isMuted = false;
     const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), track = document.getElementById('track'), info = document.getElementById('image-info');
 
-    function toggleTheme() {
-        document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'cinematic' ? 'neo' : 'cinematic');
-    }
-
+    function toggleTheme() { document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'cinematic' ? 'neo' : 'cinematic'); update(); }
     function init() { document.getElementById('start').style.display = 'none'; nav(0); }
 
     function update() {
         const fileName = images[current];
         const [c1, c2] = palettes[current];
         const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-
+        
         info.innerText = baseName;
         document.documentElement.style.setProperty('--accent', c1);
         document.documentElement.style.setProperty('--secondary', c2);
-
-        // EXTRA LOGIC: If background is dark, make text white in Neo theme
-        if(isDark(c2)) {
-            info.style.color = "#fff";
-        } else {
-            info.style.color = "#000";
-        }
+        info.style.color = isDark(c2) && document.body.getAttribute('data-theme') === 'neo' ? "#fff" : (document.body.getAttribute('data-theme') === 'neo' ? "#000" : "#fff");
 
         view.classList.remove('show');
         setTimeout(() => {
-            const imgPath = `spdr/${encodeURIComponent(fileName)}`;
-            const audioPath = `audio/${encodeURIComponent(baseName)}.mp3`;
-            view.src = imgPath;
-            bg.style.backgroundImage = `url('${imgPath}')`;
+            const path = `spdr/${encodeURIComponent(fileName)}`;
+            view.src = path;
+            bg.style.backgroundImage = `url('${path}')`;
             view.onload = () => view.classList.add('show');
-            if (!first) { 
-                if (track.src.indexOf(encodeURIComponent(baseName)) === -1) {
-                    track.src = audioPath;
-                    if (!isMuted) track.play().catch(() => {});
-                }
+            if (!first) {
+                const aPath = `audio/${encodeURIComponent(baseName)}.mp3`;
+                if (track.src.indexOf(encodeURIComponent(baseName)) === -1) { track.src = aPath; if (!isMuted) track.play().catch(()=>{}); }
             }
         }, 300);
     }
 
-    // Helper to detect if a hex color is dark
     function isDark(color) {
         const hex = color.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-        return brightness < 128;
+        const r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
+        return ((r * 299 + g * 587 + b * 114) / 1000) < 128;
     }
 
     function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
     function toggleMute() { isMuted = !isMuted; track.muted = isMuted; document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1; }
 
     window.addEventListener('keydown', e => { if(e.key === "ArrowRight") nav(1); if(e.key === "ArrowLeft") nav(-1); });
-
     const fOn = () => document.body.classList.add('focus-mode');
     const fOff = () => document.body.classList.remove('focus-mode');
-    document.addEventListener('mousedown', fOn); document.addEventListener('mouseup', fOff);
+    document.addEventListener('touchstart', fOn); document.addEventListener('touchend', fOff);
 </script>
 </body>
 </html>

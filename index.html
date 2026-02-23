@@ -3,244 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Miles Morales | Project Titan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>Miles Morales | Cyber-Brutal Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #ee2d2d;
-            --secondary: #fecd15;
-            --glass: rgba(255, 255, 255, 0.08);
-            --blur: blur(20px);
-            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+            --color1: #1a1a1a;
+            --color2: #000000;
+            --accent: #ffffff;
+            --glass: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.15);
+            --text-sub: rgba(255, 255, 255, 0.45);
+            --ink: #ffffff;
         }
-
-        /* 1. CORE PERFORMANCE (Woz-style) */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body, html { width: 100%; height: 100dvh; background: #000; overflow: hidden; position: fixed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; cursor: default; font-family: 'Inter', system-ui, sans-serif; }
         
-        /* 2. DYNAMIC BACKGROUND */
-        #bg-blur {
-            position: fixed; inset: -10%; width: 120%; height: 120%;
-            background-size: cover; background-position: center;
-            filter: blur(50px) brightness(0.4); z-index: 0;
-            transition: background-image 0.8s var(--ease);
-            will-change: background-image;
+        /* Dark animated gradient + subtle brutal grid */
+        #gradient-bg {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, var(--color1), #000, var(--color2));
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none; z-index: 1;
+        }
+        
+        /* Scanlines */
+        .hud-filter::before {
+            content: ""; position: fixed; inset: 0;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.12) 50%), 
+                        linear-gradient(90deg, rgba(255,0,0,0.008), rgba(0,255,0,0.008), rgba(0,0,255,0.008));
+            background-size: 100% 4px, 4px 100%; pointer-events: none; z-index: 10;
+            opacity: 1;
+        }
+        body::after {
+            content: ''; position: fixed; inset: 0;
+            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.85) 100%);
+            pointer-events: none; z-index: 2;
         }
 
-        /* 3. THE "STEVE" UI: EDGE-TO-EDGE */
-        main {
-            position: relative; z-index: 10; height: 100dvh; width: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
+        #progress-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 12px;
+            background: rgba(255,255,255,0.08); border-bottom: 4px solid var(--ink); z-index: 1001;
+        }
+        #progress-bar { 
+            width: 0%; height: 100%; background: var(--accent); 
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            box-shadow: 0 0 20px var(--accent);
         }
 
-        /* FULLSCREEN IMAGE CONTAINER */
-        .stage {
-            position: absolute; inset: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
+        .controls { position: fixed; top: 25px; right: 25px; z-index: 1005; display: flex; gap: 12px; }
+        
+        /* NEO-BRUTAL BUTTONS */
+        .icon-btn, .nav-btn {
+            background: var(--glass); 
+            border: 5px solid var(--ink);
+            color: var(--ink); 
+            width: 58px; height: 58px; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; 
+            box-shadow: 8px 8px 0px 0px var(--ink);
+            transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 20px;
         }
-
-        .view-container {
-            width: 100%; height: 100%; position: relative;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
+        .icon-btn:active, .nav-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0px 0px var(--ink);
         }
+        .icon-btn:hover, .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        img {
-            max-width: 100%; max-height: 100%; width: auto; height: auto;
-            object-fit: contain; transform: scale(1.05); opacity: 0;
-            transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
-            filter: drop-shadow(0 0 30px rgba(0,0,0,0.5));
-            will-change: transform, opacity;
-        }
-        img.show { opacity: 1; transform: scale(1); }
+        main { position: relative; z-index: 3; height: 100vh; width: 100vw; display: grid; grid-template-rows: 18% 1fr 16%; align-items: center; justify-items: center; }
 
-        /* HUD - MINIMALIST OVERLAY */
-        .hud {
-            position: absolute; inset: 0; pointer-events: none;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 30px; transition: opacity 0.4s var(--ease);
-        }
-
-        /* MISSION TITLE - FLOATING */
+        /* BIG STICKER INFO */
         #image-info {
-            pointer-events: auto; font-family: 'Inter', sans-serif;
-            font-weight: 700; letter-spacing: 4px; text-transform: uppercase;
-            font-size: clamp(0.7rem, 2vw, 0.9rem); color: #fff;
-            background: var(--glass); backdrop-filter: var(--blur);
-            padding: 12px 24px; border-radius: 100px;
-            border: 1px solid rgba(255,255,255,0.1);
-            align-self: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-top: 20px; text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.85rem; font-weight: 900; letter-spacing: -2px;
+            text-transform: uppercase; 
+            background: var(--accent);
+            color: #000;
+            padding: 8px 22px; 
+            border: 6px solid var(--ink);
+            box-shadow: 10px 10px 0px 0px var(--ink);
+            transition: all 0.4s ease;
         }
 
-        /* NEO-BRUTALIST OVERRIDES */
-        body[data-theme="neo"] { background: #FFFDF5; }
-        body[data-theme="neo"] #bg-blur { opacity: 0; }
-        body[data-theme="neo"] #image-info {
-            font-family: 'Space Grotesk'; font-weight: 900; background: var(--secondary);
-            color: #000; border: 4px solid #000; border-radius: 0; transform: rotate(-1.5deg);
-            box-shadow: 6px 6px 0 #000; letter-spacing: 0; font-size: 1.2rem;
+        .stage { display: flex; align-items: center; justify-content: center; gap: 35px; width: 100%; max-width: 1450px; padding: 0 20px; }
+
+        /* BRUTAL IMAGE FRAME */
+        .image-frame {
+            position: relative; width: 78vw; max-width: 920px; aspect-ratio: 16 / 9;
+            background: #000; 
+            border: 7px solid var(--ink);
+            border-radius: 3px;
+            display: flex; align-items: center; justify-content: center; 
+            padding: 12px; overflow: hidden;
+            box-shadow: 14px 14px 0px 0px var(--accent);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: scale(0.92); opacity: 0;
+        }
+        .image-frame.active { 
+            transform: scale(1); opacity: 1; 
+            border-color: var(--accent); 
+            box-shadow: 18px 18px 0px 0px var(--accent);
         }
 
-        /* 4. GHOST NAVIGATION (Invisible Click Zones) */
-        .nav-zone {
-            position: absolute; top: 0; bottom: 0; width: 25%; z-index: 50;
-            cursor: pointer; pointer-events: auto; display: flex; align-items: center; justify-content: center;
+        #loader { 
+            position: absolute; width: 42px; height: 42px; 
+            border: 6px solid var(--border); border-top: 6px solid var(--accent); 
+            border-radius: 50%; animation: spin 0.7s linear infinite; 
         }
-        .nav-zone.left { left: 0; }
-        .nav-zone.right { right: 0; }
-        .nav-hint { width: 50px; height: 50px; opacity: 0; transition: 0.3s; color: white; }
-        .nav-zone:hover .nav-hint { opacity: 0.4; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* TOP CONTROLS */
-        .top-bar {
-            position: fixed; top: 30px; right: 30px; z-index: 100;
-            display: flex; gap: 15px; pointer-events: auto;
-        }
-        .btn-circle {
-            width: 50px; height: 50px; border-radius: 50%; border: none;
-            background: var(--glass); backdrop-filter: var(--blur);
-            color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
-        }
-        .btn-circle:active { transform: scale(0.9); }
+        img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.8s ease; }
+        .show { opacity: 1; }
 
-        /* 5. START OVERLAY */
-        #start {
-            position: fixed; inset: 0; z-index: 10000; background: #000;
+        footer { 
+            width: 100%; max-width: 1350px; display: flex; justify-content: space-between; align-items: flex-end; 
+            font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 900; 
+            letter-spacing: 2px; color: var(--text-sub); padding: 0 35px 35px; text-transform: uppercase;
+        }
+        .made-by { color: white; text-decoration: none; }
+
+        /* START OVERLAY - MASSIVE BRUTAL */
+        #start-overlay {
+            position: fixed; inset: 0; background: var(--accent); z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: opacity 0.8s var(--ease);
+            cursor: pointer; transition: transform 0.9s cubic-bezier(0.8, 0, 0.2, 1);
+            border: 12px solid #000;
         }
-        #start h1 { font-family: 'Space Grotesk'; font-size: 15vw; line-height: 0.8; color: #fff; text-align: center; }
+        #start-overlay h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13vw; line-height: 0.75; font-weight: 900;
+            color: #000; -webkit-text-stroke: 6px #000;
+            text-align: center; letter-spacing: -8px;
+        }
+        #start-overlay .press {
+            margin-top: 30px; font-size: 1.1rem; font-weight: 900; letter-spacing: 6px;
+            background: #000; color: var(--accent);
+            padding: 14px 42px; border: 6px solid #000;
+            box-shadow: 8px 8px 0px 0px #000;
+        }
 
-        /* FOCUS MODE */
-        body.focus-mode .hud, body.focus-mode .top-bar { opacity: 0; }
+        /* Rotate message */
+        #rotate-msg { 
+            position: fixed; inset: 0; background: #000; z-index: 9999; 
+            display: flex; justify-content: center; align-items: center; 
+            text-align: center; font-size: 0.75rem; letter-spacing: 5px; display: none;
+        }
+        @media (max-width: 650px) and (orientation: portrait) {
+            #rotate-msg { display: flex; }
+        }
+
+        /* Focus Mode */
+        body.focus-mode .controls,
+        body.focus-mode #image-info,
+        body.focus-mode .nav-btn,
+        body.focus-mode footer,
+        body.focus-mode #progress-container { opacity: 0; pointer-events: none; }
     </style>
 </head>
-<body data-theme="cinematic">
+<body class="hud-filter" oncontextmenu="return false;">
+    <div id="rotate-msg">ROTATE DEVICE FOR<br>THE FULL EXPERIENCE</div>
+    <canvas id="colorCanvas" style="display:none;"></canvas>
+    <div id="gradient-bg"></div>
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    
+    <div class="controls">
+        <button class="icon-btn" onclick="toggleFilter()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button class="icon-btn" onclick="toggleMute()">
+            <svg id="speaker-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+    </div>
 
-<div id="bg-blur"></div>
+    <div id="start-overlay" onclick="startApp()">
+        <h1>MILES<br>MORALES</h1>
+        <div class="press">TAP TO LAUNCH SHOWCASE</div>
+    </div>
 
-<div id="start" onclick="init()">
-    <h1 style="color: var(--accent);">MILES</h1>
-    <h1 style="margin-bottom: 20px;">MORALES</h1>
-    <p style="letter-spacing: 5px; color: rgba(255,255,255,0.4); font-size: 0.7rem; font-weight: 700;">ENTER THE SPIDER-VERSE</p>
-</div>
-
-<div class="top-bar">
-    <button class="btn-circle" onclick="toggleTheme()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
-    <button class="btn-circle" onclick="toggleMute()"><svg id="spk" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg></button>
-</div>
-
-<main>
-    <div class="nav-zone left" onclick="nav(-1)"><svg class="nav-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 18l-6-6 6-6"/></svg></div>
-    <div class="nav-zone right" onclick="nav(1)"><svg class="nav-hint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg></div>
-
-    <div class="stage">
-        <div class="view-container">
-            <img id="view" src="">
+    <main>
+        <div id="image-info">INITIALIZING MISSION...</div>
+        
+        <div class="stage" id="touch-zone">
+            <button class="nav-btn" onclick="nav(-1)">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            
+            <div class="image-frame" id="frame">
+                <div id="loader"></div>
+                <img id="view" src="" crossorigin="anonymous">
+            </div>
+            
+            <button class="nav-btn" onclick="nav(1)">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
         </div>
-    </div>
 
-    <div class="hud">
-        <div id="image-info">SELECT MISSION</div>
-        <footer style="align-self: center; font-size: 0.6rem; letter-spacing: 3px; opacity: 0.3; color: #fff; font-weight: 700;">@SHERIKUMRISHI</footer>
-    </div>
-</main>
+        <footer>
+            <div>MISSION STATUS: ACTIVE</div>
+            <div>GAMEPLAY BY <a href="https://instagram.com/sherikumrishi" target="_blank" class="made-by">@SHERIKUMRISHI</a></div>
+        </footer>
+    </main>
 
-<audio id="track" loop></audio>
+    <audio id="track" loop></audio>
 
-<script>
-    const images = ["2 sides of the same coin.png", "42nd & Broadway.png", "acrobatics 1.png", "aint as simple as it looks.png", "creepy crawler.png", "criterion 2.png", "criterion.png", "Divin down.png", "dont mess with the spider.png", "gold n gunz.png", "I HAVE THE POWER!!!.png", "I’m done pulling my punches..png", "its bitsy spider.png", "its in my DNA.png", "kaboom!.png", "last dance.png", "like an angel.png", "look into my eyes.png", "nah ima do my own thing now.png", "no matter how many times i fall i always get back up.png", "nothing personal.png", "one day ima be in the avengers.png", "Parallel Paths.png", "power within.png", "Prowler & Pupil.png", "purple reign.png", "responsibilities.png", "Rise Of Miles.png", "skiing in new york.png", "snowy manhattan.png", "thats all it is a leap of faith.png", "THE BOY WHO GOT BIT BY A SPIDER.png", "THE ENERGY FLOWS.png", "Unstoppable flight.png", "Uptown Pride.png", "was it worth it.png", "world of acrobatics.png", "YN.png"];
-    const palettes = [["#cf4d3f", "#dce05e"], ["#c7d350", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#ee2d2d", "#1a1b26"], ["#ed2e2d", "#1a1b26"], ["#f11c1b", "#24275f"], ["#d83c19", "#966407"], ["#966407", "#e4c66e"], ["#f80d0c", "#fecd15"], ["#e6170b", "#966407"], ["#be7ce3", "#8117e3"], ["#ee2d2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#8117e3", "#be7ce3"], ["#92550d", "#ff1300"], ["#ff1300", "#1a1b26"], ["#d5653a", "#ab43be"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#364a61", "#b3cd32"], ["#dce05e", "#cf4d3f"], ["#1315cd", "#f02b2b"], ["#51348c", "#1e1746"], ["#1e1746", "#51348c"], ["#f02b2b", "#182227"], ["#e4c66e", "#f02b2b"], ["#24275f", "#eb2c2c"], ["#72b3c7", "#ee2d2d"], ["#364f98", "#e9302e"], ["#fecd15", "#419d7f"], ["#99c11f", "#c82727"], ["#929da5", "#da4647"], ["#3b535f", "#ee2d2d"], ["#f25b69", "#ca2741"], ["#757383", "#ee2d2d"], ["#7da324", "#de5024"]];
+    <script>
+        const images = ["spdr/Rise Of Miles.png", "spdr/responsibilities.png", "spdr/Uptown Pride.png", "spdr/Unstoppable flight.png", "spdr/THE ENERGY FLOWS.png", "spdr/purple reign.png", "spdr/last dance.png", "spdr/criterion.png", "spdr/kaboom!.png", "spdr/thats all it is a leap of faith.png", "spdr/Parallel Paths.png", "spdr/one day ima be in the avengers.png", "spdr/no matter how many times i fall i always get back up.png", "spdr/nothing personal.png", "spdr/its in my DNA.png", "spdr/its bitsy spider.png", "spdr/I’m done pulling my punches..png", "spdr/dont mess with the spider.png", "spdr/Divin down.png", "spdr/acrobatics 1.png", "spdr/world of acrobatics.png", "spdr/power within.png", "spdr/I HAVE THE POWER!!!.png", "spdr/gold n gunz.png", "spdr/was it worth it.png", "spdr/42nd & Broadway.png", "spdr/snowy manhattan.png", "spdr/skiing in new york.png", "spdr/criterion 2.png", "spdr/look into my eyes.png", "spdr/2 sides of the same coin.png", "spdr/aint as simple as it looks.png", "spdr/creepy crawler.png", "spdr/like an angel.png", "spdr/nah ima do my own thing now.png", "spdr/Prowler & Pupil.png", "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/YN.png"];
+        
+        let current = 0, first = true, isMuted = false, focusTimeout;
+        const view = document.getElementById('view');
+        const info = document.getElementById('image-info');
+        const track = document.getElementById('track');
+        const ldr = document.getElementById('loader');
+        const start = document.getElementById('start-overlay');
+        const pBar = document.getElementById('progress-bar');
+        const frame = document.getElementById('frame');
+        const canvas = document.getElementById('colorCanvas');
+        const ctx = canvas.getContext('2d');
 
-    let current = 0, first = true, isMuted = false;
-    const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), track = document.getElementById('track'), info = document.getElementById('image-info');
-
-    // Preload Logic (Woz Performance Tip)
-    function preload(idx) {
-        if(idx < images.length) {
-            const img = new Image();
-            img.src = `spdr/${encodeURIComponent(images[idx])}`;
+        function toggleFilter() { 
+            document.body.classList.toggle('hud-filter'); 
+            vibrate(8); 
         }
-    }
-
-    function toggleTheme() {
-        const currentTheme = document.body.getAttribute('data-theme');
-        document.body.setAttribute('data-theme', currentTheme === 'cinematic' ? 'neo' : 'cinematic');
-        update(true);
-    }
-
-    function init() {
-        document.getElementById('start').style.opacity = '0';
-        setTimeout(() => document.getElementById('start').style.display = 'none', 800);
-        nav(0);
-    }
-
-    function update(themeOnly = false) {
-        const fileName = images[current];
-        const [c1, c2] = palettes[current];
-        const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
         
-        // 1. Instant Text Update
-        info.innerText = baseName;
-        document.documentElement.style.setProperty('--accent', c1);
-        document.documentElement.style.setProperty('--secondary', c2);
-
-        if(document.body.getAttribute('data-theme') === 'neo') {
-            info.style.color = isDark(c2) ? "#fff" : "#000";
-        } else { info.style.color = "#fff"; }
-
-        if(themeOnly) return;
-
-        // 2. Performance Loading
-        view.classList.remove('show');
+        function toggleMute() { 
+            isMuted = !isMuted; 
+            track.muted = isMuted; 
+            document.getElementById('speaker-icon').style.opacity = isMuted ? "0.35" : "1"; 
+            vibrate(8); 
+        }
         
-        const path = `spdr/${encodeURIComponent(fileName)}`;
-        const aPath = `audio/${encodeURIComponent(baseName)}.mp3`;
+        function vibrate(ms) { 
+            if (navigator.vibrate) navigator.vibrate(ms); 
+        }
 
-        // Wait for tiny exit transition
-        setTimeout(() => {
-            view.src = path;
-            bg.style.backgroundImage = `url('${path}')`;
-            view.onload = () => {
-                view.classList.add('show');
-                preload(current + 1); // Preload next
+        function startApp() {
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            start.style.transform = 'translateY(-120%)';
+            setTimeout(() => start.style.display = 'none', 900);
+            nav(0);
+        }
+
+        function extractColors(img) {
+            canvas.width = 60; canvas.height = 60;
+            ctx.drawImage(img, 0, 0, 60, 60);
+            const data = ctx.getImageData(0, 0, 60, 60).data;
+            const colors = {};
+            for (let i = 0; i < data.length; i += 16) {
+                const rgb = `${data[i]},${data[i+1]},${data[i+2]}`;
+                colors[rgb] = (colors[rgb] || 0) + 1;
             }
+            const sorted = Object.keys(colors).sort((a, b) => colors[b] - colors[a]);
+            return [`rgb(${sorted[0]})`, `rgb(${sorted[1] || sorted[0]})`];
+        }
 
-            if (!first) {
-                if (track.src.indexOf(encodeURIComponent(baseName)) === -1) {
-                    track.src = aPath;
-                    if (!isMuted) track.play().catch(()=>{});
-                }
-            }
-        }, 100);
-    }
+        function update() {
+            const path = images[current];
+            frame.classList.remove('active');
+            ldr.style.display = 'block';
+            view.classList.remove('show');
 
-    function isDark(color) {
-        const hex = color.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
-        return ((r * 299 + g * 587 + b * 114) / 1000) < 128;
-    }
+            const tempImg = new Image();
+            tempImg.src = encodeURI(path);
+            tempImg.onload = () => {
+                const [c1, c2] = extractColors(tempImg);
+                document.documentElement.style.setProperty('--color1', c1);
+                document.documentElement.style.setProperty('--color2', c2);
+                document.documentElement.style.setProperty('--accent', c1);
 
-    function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
-    function toggleMute() { 
-        isMuted = !isMuted; 
-        track.muted = isMuted; 
-        document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1; 
-        if(!isMuted && track.paused && !first) track.play();
-    }
+                view.src = encodeURI(path);
+                const title = path.split('/').pop().replace(/\.[^/.]+$/, "");
+                info.innerText = title;
+                
+                // Random brutal sticker rotation
+                info.style.transform = `rotate(${Math.random() * 5 - 2.5}deg)`;
 
-    // GESTURES & KEYS
-    window.addEventListener('keydown', e => { if(e.key === "ArrowRight") nav(1); if(e.key === "ArrowLeft") nav(-1); });
+                ldr.style.display = 'none';
+                
+                setTimeout(() => {
+                    frame.classList.add('active');
+                    view.classList.add('show');
+                    pBar.style.width = ((current + 1) / images.length * 100) + '%';
+                    
+                    if (!first) {
+                        track.src = `audio/${encodeURIComponent(title)}.mp3`;
+                        track.play().catch(() => {});
+                        vibrate(12);
+                    }
+                }, 80);
+            };
+        }
 
-    // Focus Mode (Jobs' Clean UI)
-    let touchTimer;
-    const fOn = () => touchTimer = setTimeout(() => document.body.classList.add('focus-mode'), 400);
-    const fOff = () => { clearTimeout(touchTimer); document.body.classList.remove('focus-mode'); };
-    document.addEventListener('touchstart', fOn); document.addEventListener('touchend', fOff);
-    document.addEventListener('mousedown', fOn); document.addEventListener('mouseup', fOff);
-</script>
+        function nav(d) { 
+            if (first) first = false; 
+            current = (current + d + images.length) % images.length; 
+            update(); 
+        }
+
+        // Focus Mode
+        const handleStart = () => { focusTimeout = setTimeout(() => document.body.classList.add('focus-mode'), 650); };
+        const handleEnd = () => { clearTimeout(focusTimeout); document.body.classList.remove('focus-mode'); };
+        document.addEventListener('mousedown', handleStart);
+        document.addEventListener('mouseup', handleEnd);
+        document.addEventListener('touchstart', handleStart);
+        document.addEventListener('touchend', handleEnd);
+
+        // Keyboard
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight') nav(1);
+            if (e.key === 'ArrowLeft') nav(-1);
+            if (e.key === ' ') { e.preventDefault(); toggleMute(); }
+        });
+
+        // Swipe
+        let touchStartX = 0;
+        document.getElementById('touch-zone').addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        document.getElementById('touch-zone').addEventListener('touchend', e => {
+            let touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 90) nav(1);
+            if (touchEndX - touchStartX > 90) nav(-1);
+        });
+    </script>
 </body>
 </html>

@@ -15,7 +15,15 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; height: 100dvh; overflow: hidden; background: #000; transition: background-color var(--trans); touch-action: manipulation; }
+        body, html { width: 100%; height: 100dvh; overflow: hidden; background: #000; transition: background-color var(--trans); touch-action: manipulation; }
+
+        /* --- ORIENTATION GUARD --- */
+        #rotate-notice {
+            position: fixed; inset: 0; background: #000; z-index: 20000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            color: white; text-align: center; font-family: 'Space Grotesk'; padding: 20px;
+        }
+        @media (orientation: portrait) { #rotate-notice { display: flex; } }
 
         /* --- THEME 1: CINEMATIC --- */
         body[data-theme="cinematic"] { font-family: 'Inter', sans-serif; color: white; }
@@ -31,10 +39,146 @@
             border-radius: 12px;
         }
         body[data-theme="cinematic"] #image-info { 
-            font-size: clamp(0.6rem, 2vw, 0.8rem); font-weight: 700; letter-spacing: 3px; 
-            text-transform: uppercase; color: #fff; text-align: center;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 4px; 
+            text-transform: uppercase; color: #fff; text-shadow: 0 2px 10px #000;
         }
         body[data-theme="cinematic"] .icon-btn, body[data-theme="cinematic"] .nav-btn { 
+            background: var(--glass); border: 1px solid var(--glass-border); color: white; border-radius: 50%;
+        }
+
+        /* --- THEME 2: NEO-BRUTALIST --- */
+        body[data-theme="neo"] { 
+            font-family: 'Space Grotesk', sans-serif; background-color: #FFFDF5; 
+            background-image: radial-gradient(#000 1.5px, transparent 1.5px); background-size: 24px 24px; color: #000;
+        }
+        body[data-theme="neo"] #bg-blur { display: none; }
+        body[data-theme="neo"] .image-frame {
+            border: 5px solid #000; background: #fff; border-radius: 0;
+            box-shadow: 12px 12px 0px 0px var(--accent);
+        }
+        body[data-theme="neo"] #image-info { 
+            background: var(--secondary); padding: 10px 20px; border: 4px solid #000;
+            box-shadow: 6px 6px 0px 0px #000; font-weight: 900; font-size: 1.2rem;
+            transform: rotate(-1deg);
+        }
+        body[data-theme="neo"] .icon-btn, body[data-theme="neo"] .nav-btn { 
+            background: #fff; border: 4px solid #000; box-shadow: 5px 5px 0px #000; color: #000; 
+        }
+
+        /* MAIN LAYOUT */
+        main { position: relative; z-index: 1; height: 100dvh; display: grid; grid-template-rows: 80px 1fr 80px; align-items: center; justify-items: center; }
+        
+        .controls { position: fixed; top: 20px; right: 20px; display: flex; gap: 12px; z-index: 100; }
+        .icon-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .stage { display: flex; align-items: center; justify-content: center; gap: 30px; width: 100%; padding: 0 20px; }
+        .image-frame { width: 70vw; max-width: 900px; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; padding: 8px; position: relative; transition: all 0.4s ease; }
+        img { max-width: 100%; max-height: 100%; opacity: 0; transition: opacity 0.4s ease; object-fit: contain; }
+        .show { opacity: 1; }
+        
+        .nav-btn { width: 60px; height: 60px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        svg { fill: currentColor; }
+
+        /* Start Overlay */
+        #start { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #start h1 { font-family: 'Space Grotesk'; font-size: 12vw; line-height: 0.8; color: #fff; -webkit-text-stroke: 2px #000; text-align: center; }
+        
+        body.focus-mode main > *:not(.stage) { opacity: 0; pointer-events: none; }
+        footer { font-size: 0.7rem; font-weight: 900; opacity: 0.6; }
+    </style>
+</head>
+<body data-theme="cinematic">
+
+<div id="rotate-notice">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" style="margin-bottom:20px; animation: rotate 2s infinite ease-in-out;">
+        <path d="M1 12a11 11 0 0 1 21 0M3.3 7A11 11 0 0 1 21 12M1 12h5M23 12h-5"/>
+    </svg>
+    <h2>PLEASE ROTATE DEVICE</h2>
+    <p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">This experience is built for Landscape</p>
+</div>
+
+<div id="bg-blur"></div>
+
+<div class="controls">
+    <button class="icon-btn" onclick="toggleTheme()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
+    <button class="icon-btn" onclick="toggleMute()"><svg id="spk" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg></button>
+</div>
+
+<div id="start" onclick="init()">
+    <h1>MILES<br>MORALES</h1>
+    <p style="background:#fff; color:#000; padding:15px 30px; margin-top:30px; font-weight:900; border:4px solid #000; box-shadow: 6px 6px 0px #000; cursor:pointer;">TAP TO START</p>
+</div>
+
+<main>
+    <div id="image-info">SELECT MISSION</div>
+    <div class="stage">
+        <button class="nav-btn" onclick="nav(-1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+        <div class="image-frame"><img id="view" src=""></div>
+        <button class="nav-btn" onclick="nav(1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+    </div>
+    <footer>@SHERIKUMRISHI</footer>
+</main>
+
+<audio id="track" loop></audio>
+
+<script>
+    const images = ["2 sides of the same coin.png", "42nd & Broadway.png", "acrobatics 1.png", "aint as simple as it looks.png", "creepy crawler.png", "criterion 2.png", "criterion.png", "Divin down.png", "dont mess with the spider.png", "gold n gunz.png", "I HAVE THE POWER!!!.png", "I’m done pulling my punches..png", "its bitsy spider.png", "its in my DNA.png", "kaboom!.png", "last dance.png", "like an angel.png", "look into my eyes.png", "nah ima do my own thing now.png", "no matter how many times i fall i always get back up.png", "nothing personal.png", "one day ima be in the avengers.png", "Parallel Paths.png", "power within.png", "Prowler & Pupil.png", "purple reign.png", "responsibilities.png", "Rise Of Miles.png", "skiing in new york.png", "snowy manhattan.png", "thats all it is a leap of faith.png", "THE BOY WHO GOT BIT BY A SPIDER.png", "THE ENERGY FLOWS.png", "Unstoppable flight.png", "Uptown Pride.png", "was it worth it.png", "world of acrobatics.png", "YN.png"];
+    const palettes = [["#cf4d3f", "#dce05e"], ["#c7d350", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#ee2d2d", "#1a1b26"], ["#ed2e2d", "#1a1b26"], ["#f11c1b", "#24275f"], ["#d83c19", "#966407"], ["#966407", "#e4c66e"], ["#f80d0c", "#fecd15"], ["#e6170b", "#966407"], ["#be7ce3", "#8117e3"], ["#ee2d2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#8117e3", "#be7ce3"], ["#92550d", "#ff1300"], ["#ff1300", "#1a1b26"], ["#d5653a", "#ab43be"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#364a61", "#b3cd32"], ["#dce05e", "#cf4d3f"], ["#1315cd", "#f02b2b"], ["#51348c", "#1e1746"], ["#1e1746", "#51348c"], ["#f02b2b", "#182227"], ["#e4c66e", "#f02b2b"], ["#24275f", "#eb2c2c"], ["#72b3c7", "#ee2d2d"], ["#364f98", "#e9302e"], ["#fecd15", "#419d7f"], ["#99c11f", "#c82727"], ["#929da5", "#da4647"], ["#3b535f", "#ee2d2d"], ["#f25b69", "#ca2741"], ["#757383", "#ee2d2d"], ["#7da324", "#de5024"]];
+
+    let current = 0, first = true, isMuted = false;
+    const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), track = document.getElementById('track'), info = document.getElementById('image-info');
+
+    function toggleTheme() { document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'cinematic' ? 'neo' : 'cinematic'); update(); }
+    function init() { document.getElementById('start').style.display = 'none'; nav(0); }
+
+    function update() {
+        const fileName = images[current];
+        const [c1, c2] = palettes[current];
+        const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+        
+        info.innerText = baseName;
+        document.documentElement.style.setProperty('--accent', c1);
+        document.documentElement.style.setProperty('--secondary', c2);
+
+        // Adjust text color for Neo Theme
+        if(document.body.getAttribute('data-theme') === 'neo') {
+            info.style.color = isDark(c2) ? "#fff" : "#000";
+        } else { info.style.color = "#fff"; }
+
+        view.classList.remove('show');
+        setTimeout(() => {
+            const path = `spdr/${encodeURIComponent(fileName)}`;
+            view.src = path;
+            bg.style.backgroundImage = `url('${path}')`;
+            view.onload = () => view.classList.add('show');
+            if (!first) {
+                const aPath = `audio/${encodeURIComponent(baseName)}.mp3`;
+                if (track.src.indexOf(encodeURIComponent(baseName)) === -1) { track.src = aPath; if (!isMuted) track.play().catch(()=>{}); }
+            }
+        }, 300);
+    }
+
+    function isDark(color) {
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
+        return ((r * 299 + g * 587 + b * 114) / 1000) < 128;
+    }
+
+    function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
+    function toggleMute() { isMuted = !isMuted; track.muted = isMuted; document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1; }
+
+    window.addEventListener('keydown', e => { if(e.key === "ArrowRight") nav(1); if(e.key === "ArrowLeft") nav(-1); });
+    const fOn = () => document.body.classList.add('focus-mode');
+    const fOff = () => document.body.classList.remove('focus-mode');
+    document.addEventListener('touchstart', fOn); document.addEventListener('touchend', fOff);
+</script>
+
+<style>
+    @keyframes rotate { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
+</style>
+</body>
+                                                         </html>
+body[data-theme="cinematic"] .icon-btn, body[data-theme="cinematic"] .nav-btn { 
             background: var(--glass); border: 1px solid var(--glass-border); color: white; border-radius: 50%;
         }
 

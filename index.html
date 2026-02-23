@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Spider-Verse Hybrid | @sherikumrishi</title>
+    <title>Miles Morales | @sherikumrishi</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,7 +17,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; transition: background-color var(--trans); }
 
-        /* --- THEME 1: CINEMATIC (Glass & Glow) --- */
+        /* --- THEME 1: CINEMATIC --- */
         body[data-theme="cinematic"] { font-family: 'Inter', sans-serif; color: white; }
         body[data-theme="cinematic"] #bg-blur {
             position: fixed; inset: -5%; width: 110%; height: 110%;
@@ -31,15 +31,14 @@
             border-radius: 20px;
         }
         body[data-theme="cinematic"] #image-info { 
-            font-size: 0.8rem; font-weight: 700; letter-spacing: 6px; 
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 5px; 
             text-transform: uppercase; color: #fff; text-shadow: 0 2px 15px rgba(0,0,0,1);
         }
         body[data-theme="cinematic"] .icon-btn, body[data-theme="cinematic"] .nav-btn { 
-            background: var(--glass); border: 1px solid var(--glass-border); 
-            backdrop-filter: blur(10px); color: white; border-radius: 50%;
+            background: var(--glass); border: 1px solid var(--glass-border); color: white; border-radius: 50%;
         }
 
-        /* --- THEME 2: NEO-BRUTALIST (Ink & Pop) --- */
+        /* --- THEME 2: NEO-BRUTALIST (Contrast Fix) --- */
         body[data-theme="neo"] { 
             font-family: 'Space Grotesk', sans-serif; background-color: #FFFDF5; 
             background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
@@ -50,16 +49,29 @@
             border: 5px solid #000; background: #fff; border-radius: 0;
             box-shadow: 15px 15px 0px 0px var(--accent);
         }
+        
+        /* THE FIX: We use a white text shadow and a dark background for the label 
+           to ensure that even if --secondary is dark, the "sticker" pop effect works. */
         body[data-theme="neo"] #image-info { 
-            background: var(--secondary); color: #000; padding: 10px 25px; border: 4px solid #000;
-            box-shadow: 8px 8px 0px 0px #000; font-weight: 900; font-size: 1.5rem; transform: rotate(-1.5deg);
+            background: var(--secondary); 
+            color: #000; /* Default black text */
+            padding: 12px 28px; 
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px 0px #000; 
+            font-weight: 900; 
+            font-size: 1.4rem; 
+            transform: rotate(-1.5deg);
+            /* This ensures that if the BG is dark, the black text has a slight "halo" to remain readable, 
+               or you can swap color: #fff if you prefer. */
+            text-shadow: 0.5px 0.5px 0px #fff, -0.5px -0.5px 0px #fff; 
         }
+
         body[data-theme="neo"] .icon-btn, body[data-theme="neo"] .nav-btn { 
             background: #fff; border: 4px solid #000; box-shadow: 5px 5px 0px #000; color: #000; 
         }
 
         /* SHARED LAYOUT */
-        main { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: 100px 1fr 100px; align-items: center; justify-items: center; }
+        main { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: 120px 1fr 100px; align-items: center; justify-items: center; }
         .controls { position: fixed; top: 30px; right: 30px; display: flex; gap: 15px; z-index: 100; }
         .icon-btn { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
         
@@ -70,9 +82,8 @@
         .nav-btn { width: 65px; height: 65px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: 0.2s; }
         svg { fill: currentColor; }
 
-        /* Start Overlay */
         #start { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 10px solid #000; }
-        #start h1 { font-family: 'Space Grotesk'; font-size: 12vw; line-height: 0.8; color: #fff; -webkit-text-stroke: 3px #000; text-align: center; }
+        #start h1 { font-family: 'Space Grotesk'; font-size: 10vw; line-height: 0.8; color: #fff; -webkit-text-stroke: 3px #000; text-align: center; }
         
         body.focus-mode main > *:not(.stage) { opacity: 0; pointer-events: none; }
     </style>
@@ -82,17 +93,13 @@
 <div id="bg-blur"></div>
 
 <div class="controls">
-    <button class="icon-btn" onclick="toggleTheme()" title="Switch Theme">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-    </button>
-    <button class="icon-btn" onclick="toggleMute()" title="Audio Toggle">
-        <svg id="spk" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg>
-    </button>
+    <button class="icon-btn" onclick="toggleTheme()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></button>
+    <button class="icon-btn" onclick="toggleMute()"><svg id="spk" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg></button>
 </div>
 
 <div id="start" onclick="init()">
     <h1>MILES<br>MORALES</h1>
-    <p style="background:#fff; color:#000; padding:15px 30px; margin-top:40px; font-weight:900; border:5px solid #000; box-shadow: 8px 8px 0px #000; font-family:'Space Grotesk';">ENTER THE MULTIVERSE</p>
+    <p style="background:#fff; color:#000; padding:15px 30px; margin-top:40px; font-weight:900; border:5px solid #000; box-shadow: 8px 8px 0px #000;">TAP TO BEGIN</p>
 </div>
 
 <main>
@@ -102,15 +109,28 @@
         <div class="image-frame"><img id="view" src=""></div>
         <button class="nav-btn" onclick="nav(1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
     </div>
-    <footer style="font-size: 0.8rem; font-weight: 900; opacity: 0.5; letter-spacing: 2px;">@SHERIKUMRISHI</footer>
+    <footer style="font-size: 0.8rem; font-weight: 900; opacity: 0.5;">@SHERIKUMRISHI</footer>
 </main>
 
 <audio id="track" loop></audio>
 
 <script>
-    const images = ["spdr/Rise Of Miles.png", "spdr/responsibilities.png", "spdr/Uptown Pride.png", "spdr/Unstoppable flight.png", "spdr/THE ENERGY FLOWS.png", "spdr/purple reign.png", "spdr/last dance.png", "spdr/criterion.png", "spdr/kaboom!.png", "spdr/thats all it is a leap of faith.png", "spdr/Parallel Paths.png", "spdr/one day ima be in the avengers.png", "spdr/no matter how many times i fall i always get back up.png", "spdr/nothing personal.png", "spdr/its in my DNA.png", "spdr/its bitsy spider.png", "spdr/I’m done pulling my punches..png", "spdr/dont mess with the spider.png", "spdr/Divin down.png", "spdr/acrobatics 1.png", "spdr/world of acrobatics.png", "spdr/power within.png", "spdr/I HAVE THE POWER!!!.png", "spdr/gold n gunz.png", "spdr/was it worth it.png", "spdr/42nd & Broadway.png", "spdr/snowy manhattan.png", "spdr/skiing in new york.png", "spdr/criterion 2.png", "spdr/look into my eyes.png", "spdr/2 sides of the same coin.png", "spdr/aint as simple as it looks.png", "spdr/creepy crawler.png", "spdr/like an angel.png", "spdr/nah ima do my own thing now.png", "spdr/Prowler & Pupil.png", "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/YN.png"];
-    
-    const palettes = [["#e4c66e", "#f02b2b"], ["#f02b2b", "#182227"], ["#3b535f", "#ee2d2d"], ["#929da5", "#da4647"], ["#99c11f", "#c82727"], ["#1e1746", "#51348c"], ["#8117e3", "#be7ce3"], ["#ed2e2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#364f98", "#e9302e"], ["#dce05e", "#cf4d3f"], ["#364a61", "#b3cd32"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#ee2d2d", "#1a1b26"], ["#be7ce3", "#8117e3"], ["#e6170b", "#966407"], ["#d83c19", "#966407"], ["#f11c1b", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#757383", "#ee2d2d"], ["#1315cd", "#f02b2b"], ["#f80d0c", "#fecd15"], ["#966407", "#e4c66e"], ["#f25b69", "#ca2741"], ["#c7d350", "#24275f"], ["#72b3c7", "#ee2d2d"], ["#24275f", "#eb2c2c"], ["#ee2d2d", "#1a1b26"], ["#ff1300", "#1a1b26"], ["#cf4d3f", "#dce05e"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#92550d", "#ff1300"], ["#d5653a", "#ab43be"], ["#51348c", "#1e1746"], ["#fecd15", "#419d7f"], ["#7da324", "#de5024"]];
+    const images = [
+        "2 sides of the same coin.png", "42nd & Broadway.png", "acrobatics 1.png", "aint as simple as it looks.png",
+        "creepy crawler.png", "criterion 2.png", "criterion.png", "Divin down.png", "dont mess with the spider.png",
+        "gold n gunz.png", "I HAVE THE POWER!!!.png", "I’m done pulling my punches..png", "its bitsy spider.png",
+        "its in my DNA.png", "kaboom!.png", "last dance.png", "like an angel.png", "look into my eyes.png",
+        "nah ima do my own thing now.png", "no matter how many times i fall i always get back up.png",
+        "nothing personal.png", "one day ima be in the avengers.png", "Parallel Paths.png", "power within.png",
+        "Prowler & Pupil.png", "purple reign.png", "responsibilities.png", "Rise Of Miles.png", "skiing in new york.png",
+        "snowy manhattan.png", "thats all it is a leap of faith.png", "THE BOY WHO GOT BIT BY A SPIDER.png",
+        "THE ENERGY FLOWS.png", "Unstoppable flight.png", "Uptown Pride.png", "was it worth it.png",
+        "world of acrobatics.png", "YN.png"
+    ];
+
+    const palettes = [
+        ["#cf4d3f", "#dce05e"], ["#c7d350", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#ee2d2d", "#1a1b26"], ["#ed2e2d", "#1a1b26"], ["#f11c1b", "#24275f"], ["#d83c19", "#966407"], ["#966407", "#e4c66e"], ["#f80d0c", "#fecd15"], ["#e6170b", "#966407"], ["#be7ce3", "#8117e3"], ["#ee2d2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#8117e3", "#be7ce3"], ["#92550d", "#ff1300"], ["#ff1300", "#1a1b26"], ["#d5653a", "#ab43be"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#364a61", "#b3cd32"], ["#dce05e", "#cf4d3f"], ["#1315cd", "#f02b2b"], ["#51348c", "#1e1746"], ["#1e1746", "#51348c"], ["#f02b2b", "#182227"], ["#e4c66e", "#f02b2b"], ["#24275f", "#eb2c2c"], ["#72b3c7", "#ee2d2d"], ["#364f98", "#e9302e"], ["#fecd15", "#419d7f"], ["#99c11f", "#c82727"], ["#929da5", "#da4647"], ["#3b535f", "#ee2d2d"], ["#f25b69", "#ca2741"], ["#757383", "#ee2d2d"], ["#7da324", "#de5024"]
+    ];
 
     let current = 0, first = true, isMuted = false;
     const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), track = document.getElementById('track'), info = document.getElementById('image-info');
@@ -122,49 +142,55 @@
     function init() { document.getElementById('start').style.display = 'none'; nav(0); }
 
     function update() {
-        const path = images[current];
+        const fileName = images[current];
         const [c1, c2] = palettes[current];
-        const name = path.split('/').pop().replace(/\.[^/.]+$/, "");
+        const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
 
-        // 1. UPDATE TEXT INSTANTLY (Fixes flickering)
-        info.innerText = name;
+        info.innerText = baseName;
         document.documentElement.style.setProperty('--accent', c1);
         document.documentElement.style.setProperty('--secondary', c2);
 
-        // 2. TRIGGER IMAGE LOAD
+        // EXTRA LOGIC: If background is dark, make text white in Neo theme
+        if(isDark(c2)) {
+            info.style.color = "#fff";
+        } else {
+            info.style.color = "#000";
+        }
+
         view.classList.remove('show');
         setTimeout(() => {
-            view.src = encodeURI(path);
-            bg.style.backgroundImage = `url('${encodeURI(path)}')`;
+            const imgPath = `spdr/${encodeURIComponent(fileName)}`;
+            const audioPath = `audio/${encodeURIComponent(baseName)}.mp3`;
+            view.src = imgPath;
+            bg.style.backgroundImage = `url('${imgPath}')`;
             view.onload = () => view.classList.add('show');
-
-            // 3. AUDIO UPDATE
             if (!first) { 
-                const newAudioSrc = `audio/${encodeURIComponent(name)}.mp3`;
-                if (track.src !== newAudioSrc) {
-                    track.src = newAudioSrc;
-                    if (!isMuted) track.play().catch(()=>{});
+                if (track.src.indexOf(encodeURIComponent(baseName)) === -1) {
+                    track.src = audioPath;
+                    if (!isMuted) track.play().catch(() => {});
                 }
             }
         }, 300);
     }
 
-    function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
-    
-    function toggleMute() { 
-        isMuted = !isMuted; 
-        track.muted = isMuted; 
-        document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1;
-        if (!isMuted && track.paused && !first) track.play();
+    // Helper to detect if a hex color is dark
+    function isDark(color) {
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
     }
+
+    function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
+    function toggleMute() { isMuted = !isMuted; track.muted = isMuted; document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1; }
 
     window.addEventListener('keydown', e => { if(e.key === "ArrowRight") nav(1); if(e.key === "ArrowLeft") nav(-1); });
 
-    // Focus Mode Support
     const fOn = () => document.body.classList.add('focus-mode');
     const fOff = () => document.body.classList.remove('focus-mode');
     document.addEventListener('mousedown', fOn); document.addEventListener('mouseup', fOff);
-    document.addEventListener('touchstart', fOn); document.addEventListener('touchend', fOff);
 </script>
 </body>
 </html>

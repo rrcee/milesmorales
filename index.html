@@ -18,7 +18,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; cursor: default; font-family: 'Inter', system-ui, sans-serif; }
         
-        /* Dark animated gradient + subtle brutal grid */
         #gradient-bg {
             position: fixed; inset: 0;
             background: linear-gradient(135deg, var(--color1), #000, var(--color2));
@@ -40,7 +39,6 @@
             pointer-events: none; z-index: 1;
         }
         
-        /* Scanlines */
         .hud-filter::before {
             content: ""; position: fixed; inset: 0;
             background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.12) 50%), 
@@ -66,7 +64,6 @@
 
         .controls { position: fixed; top: 25px; right: 25px; z-index: 1005; display: flex; gap: 12px; }
         
-        /* NEO-BRUTAL BUTTONS */
         .icon-btn, .nav-btn {
             background: var(--glass); 
             border: 5px solid var(--ink);
@@ -86,7 +83,6 @@
 
         main { position: relative; z-index: 3; height: 100vh; width: 100vw; display: grid; grid-template-rows: 18% 1fr 16%; align-items: center; justify-items: center; }
 
-        /* BIG STICKER INFO */
         #image-info {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 1.85rem; font-weight: 900; letter-spacing: -2px;
@@ -101,7 +97,6 @@
 
         .stage { display: flex; align-items: center; justify-content: center; gap: 35px; width: 100%; max-width: 1450px; padding: 0 20px; }
 
-        /* BRUTAL IMAGE FRAME */
         .image-frame {
             position: relative; width: 78vw; max-width: 920px; aspect-ratio: 16 / 9;
             background: #000; 
@@ -136,7 +131,6 @@
         }
         .made-by { color: white; text-decoration: none; }
 
-        /* START OVERLAY - MASSIVE BRUTAL */
         #start-overlay {
             position: fixed; inset: 0; background: var(--accent); z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -156,7 +150,6 @@
             box-shadow: 8px 8px 0px 0px #000;
         }
 
-        /* Rotate message */
         #rotate-msg { 
             position: fixed; inset: 0; background: #000; z-index: 9999; 
             display: flex; justify-content: center; align-items: center; 
@@ -166,7 +159,6 @@
             #rotate-msg { display: flex; }
         }
 
-        /* Focus Mode */
         body.focus-mode .controls,
         body.focus-mode #image-info,
         body.focus-mode .nav-btn,
@@ -176,7 +168,6 @@
 </head>
 <body class="hud-filter" oncontextmenu="return false;">
     <div id="rotate-msg">ROTATE DEVICE FOR<br>THE FULL EXPERIENCE</div>
-    <canvas id="colorCanvas" style="display:none;"></canvas>
     <div id="gradient-bg"></div>
     <div id="progress-container"><div id="progress-bar"></div></div>
     
@@ -221,8 +212,65 @@
     <audio id="track" loop></audio>
 
     <script>
-        const images = ["spdr/Rise Of Miles.png", "spdr/responsibilities.png", "spdr/Uptown Pride.png", "spdr/Unstoppable flight.png", "spdr/THE ENERGY FLOWS.png", "spdr/purple reign.png", "spdr/last dance.png", "spdr/criterion.png", "spdr/kaboom!.png", "spdr/thats all it is a leap of faith.png", "spdr/Parallel Paths.png", "spdr/one day ima be in the avengers.png", "spdr/no matter how many times i fall i always get back up.png", "spdr/nothing personal.png", "spdr/its in my DNA.png", "spdr/its bitsy spider.png", "spdr/I’m done pulling my punches..png", "spdr/dont mess with the spider.png", "spdr/Divin down.png", "spdr/acrobatics 1.png", "spdr/world of acrobatics.png", "spdr/power within.png", "spdr/I HAVE THE POWER!!!.png", "spdr/gold n gunz.png", "spdr/was it worth it.png", "spdr/42nd & Broadway.png", "spdr/snowy manhattan.png", "spdr/skiing in new york.png", "spdr/criterion 2.png", "spdr/look into my eyes.png", "spdr/2 sides of the same coin.png", "spdr/aint as simple as it looks.png", "spdr/creepy crawler.png", "spdr/like an angel.png", "spdr/nah ima do my own thing now.png", "spdr/Prowler & Pupil.png", "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/YN.png"];
-        
+        const images = [
+            "spdr/Rise Of Miles.png", "spdr/responsibilities.png", "spdr/Uptown Pride.png",
+            "spdr/Unstoppable flight.png", "spdr/THE ENERGY FLOWS.png", "spdr/purple reign.png",
+            "spdr/last dance.png", "spdr/criterion.png", "spdr/kaboom!.png",
+            "spdr/thats all it is a leap of faith.png", "spdr/Parallel Paths.png",
+            "spdr/one day ima be in the avengers.png", "spdr/no matter how many times i fall i always get back up.png",
+            "spdr/nothing personal.png", "spdr/its in my DNA.png", "spdr/its bitsy spider.png",
+            "spdr/I’m done pulling my punches..png", "spdr/dont mess with the spider.png",
+            "spdr/Divin down.png", "spdr/acrobatics 1.png", "spdr/world of acrobatics.png",
+            "spdr/power within.png", "spdr/I HAVE THE POWER!!!.png", "spdr/gold n gunz.png",
+            "spdr/was it worth it.png", "spdr/42nd & Broadway.png", "spdr/snowy manhattan.png",
+            "spdr/skiing in new york.png", "spdr/criterion 2.png", "spdr/look into my eyes.png",
+            "spdr/2 sides of the same coin.png", "spdr/aint as simple as it looks.png",
+            "spdr/creepy crawler.png", "spdr/like an angel.png", "spdr/nah ima do my own thing now.png",
+            "spdr/Prowler & Pupil.png", "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/YN.png"
+        ];
+
+        // YOUR EXACT COLORS — NO MORE AUTO-EXTRACTION
+        const colorMap = {
+            "Rise Of Miles.png": {p:"#e4c66e", s:"#f02b2b"},
+            "responsibilities.png": {p:"#f02b2b", s:"#182227"},
+            "Uptown Pride.png": {p:"#3b535f", s:"#ee2d2d"},
+            "Unstoppable flight.png": {p:"#929da5", s:"#da4647"},
+            "THE ENERGY FLOWS.png": {p:"#99c11f", s:"#c82727"},
+            "purple reign.png": {p:"#1e1746", s:"#51348c"},
+            "last dance.png": {p:"#8117e3", s:"#be7ce3"},
+            "criterion.png": {p:"#ed2e2d", s:"#1a1b26"},
+            "kaboom!.png": {p:"#ee1e1e", s:"#fecd15"},
+            "thats all it is a leap of faith.png": {p:"#364f98", s:"#e9302e"},
+            "Parallel Paths.png": {p:"#dce05e", s:"#cf4d3f"},
+            "one day ima be in the avengers.png": {p:"#364a61", s:"#b3cd32"},
+            "no matter how many times i fall i always get back up.png": {p:"#ab43be", s:"#8117e3"},
+            "nothing personal.png": {p:"#b3cd32", s:"#364a61"},
+            "its in my DNA.png": {p:"#ee2d2d", s:"#1a1b26"},
+            "its bitsy spider.png": {p:"#be7ce3", s:"#8117e3"},
+            "I’m done pulling my punches..png": {p:"#e6170b", s:"#966407"},
+            "dont mess with the spider.png": {p:"#d83c19", s:"#966407"},
+            "Divin down.png": {p:"#f11c1b", s:"#24275f"},
+            "acrobatics 1.png": {p:"#ed2c2c", s:"#1a1b26"},
+            "world of acrobatics.png": {p:"#757383", s:"#ee2d2d"},
+            "power within.png": {p:"#1315cd", s:"#f02b2b"},
+            "I HAVE THE POWER!!!.png": {p:"#f80d0c", s:"#fecd15"},
+            "gold n gunz.png": {p:"#966407", s:"#e4c66e"},
+            "was it worth it.png": {p:"#f25b69", s:"#ca2741"},
+            "42nd & Broadway.png": {p:"#c7d350", s:"#24275f"},
+            "snowy manhattan.png": {p:"#72b3c7", s:"#ee2d2d"},
+            "skiing in new york.png": {p:"#24275f", s:"#eb2c2c"},
+            "criterion 2.png": {p:"#ee2d2d", s:"#1a1b26"},
+            "look into my eyes.png": {p:"#ff1300", s:"#1a1b26"},
+            "2 sides of the same coin.png": {p:"#cf4d3f", s:"#dce05e"},
+            "aint as simple as it looks.png": {p:"#ee2d2c", s:"#1a1b26"},
+            "creepy crawler.png": {p:"#c12d2b", s:"#1a1b26"},
+            "like an angel.png": {p:"#92550d", s:"#ff1300"},
+            "nah ima do my own thing now.png": {p:"#d5653a", s:"#ab43be"},
+            "Prowler & Pupil.png": {p:"#51348c", s:"#1e1746"},
+            "THE BOY WHO GOT BIT BY A SPIDER.png": {p:"#fecd15", s:"#419d7f"},
+            "YN.png": {p:"#7da324", s:"#de5024"}
+        };
+
         let current = 0, first = true, isMuted = false, focusTimeout;
         const view = document.getElementById('view');
         const info = document.getElementById('image-info');
@@ -231,8 +279,6 @@
         const start = document.getElementById('start-overlay');
         const pBar = document.getElementById('progress-bar');
         const frame = document.getElementById('frame');
-        const canvas = document.getElementById('colorCanvas');
-        const ctx = canvas.getContext('2d');
 
         function toggleFilter() { 
             document.body.classList.toggle('hud-filter'); 
@@ -257,54 +303,38 @@
             nav(0);
         }
 
-        function extractColors(img) {
-            canvas.width = 60; canvas.height = 60;
-            ctx.drawImage(img, 0, 0, 60, 60);
-            const data = ctx.getImageData(0, 0, 60, 60).data;
-            const colors = {};
-            for (let i = 0; i < data.length; i += 16) {
-                const rgb = `${data[i]},${data[i+1]},${data[i+2]}`;
-                colors[rgb] = (colors[rgb] || 0) + 1;
-            }
-            const sorted = Object.keys(colors).sort((a, b) => colors[b] - colors[a]);
-            return [`rgb(${sorted[0]})`, `rgb(${sorted[1] || sorted[0]})`];
-        }
-
         function update() {
             const path = images[current];
+            const filename = path.split('/').pop();
+            
             frame.classList.remove('active');
             ldr.style.display = 'block';
             view.classList.remove('show');
 
-            const tempImg = new Image();
-            tempImg.src = encodeURI(path);
-            tempImg.onload = () => {
-                const [c1, c2] = extractColors(tempImg);
-                document.documentElement.style.setProperty('--color1', c1);
-                document.documentElement.style.setProperty('--color2', c2);
-                document.documentElement.style.setProperty('--accent', c1);
+            const col = colorMap[filename] || {p: "#ffffff", s: "#000000"};
+            
+            document.documentElement.style.setProperty('--color1', col.p);
+            document.documentElement.style.setProperty('--color2', col.s);
+            document.documentElement.style.setProperty('--accent', col.p);
 
-                view.src = encodeURI(path);
-                const title = path.split('/').pop().replace(/\.[^/.]+$/, "");
-                info.innerText = title;
-                
-                // Random brutal sticker rotation
-                info.style.transform = `rotate(${Math.random() * 5 - 2.5}deg)`;
+            view.src = encodeURI(path);
+            const title = filename.replace(/\.[^/.]+$/, "");
+            info.innerText = title;
+            info.style.transform = `rotate(${Math.random() * 5 - 2.5}deg)`;
 
-                ldr.style.display = 'none';
+            ldr.style.display = 'none';
+            
+            setTimeout(() => {
+                frame.classList.add('active');
+                view.classList.add('show');
+                pBar.style.width = ((current + 1) / images.length * 100) + '%';
                 
-                setTimeout(() => {
-                    frame.classList.add('active');
-                    view.classList.add('show');
-                    pBar.style.width = ((current + 1) / images.length * 100) + '%';
-                    
-                    if (!first) {
-                        track.src = `audio/${encodeURIComponent(title)}.mp3`;
-                        track.play().catch(() => {});
-                        vibrate(12);
-                    }
-                }, 80);
-            };
+                if (!first) {
+                    track.src = `audio/${encodeURIComponent(title)}.mp3`;
+                    track.play().catch(() => {});
+                    vibrate(12);
+                }
+            }, 80);
         }
 
         function nav(d) { 

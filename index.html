@@ -3,203 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Spider-Verse | Gameplay Showcase</title>
+    <title>Spider-Verse Hybrid | @sherikumrishi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --accent: #ffffff; 
-            --glass: rgba(255, 255, 255, 0.03); 
-            --border: rgba(255, 255, 255, 0.1); 
-            --text-sub: rgba(255, 255, 255, 0.4); 
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; color: white; }
-
-        /* Cinematic Overlays */
-        body::before {
-            content: ""; position: fixed; inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 10;
-        }
-        body::after {
-            content: ''; position: fixed; inset: 0;
-            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 160%);
-            pointer-events: none; z-index: 2;
+        :root {
+            --accent: #ee2d2d;
+            --secondary: #fecd15;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --trans: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        #bg-blur {
-            position: fixed; inset: -10%; width: 120%; height: 120%;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; transition: background-color var(--trans); }
+
+        /* --- THEME 1: CINEMATIC (Glass & Glow) --- */
+        body[data-theme="cinematic"] { font-family: 'Inter', sans-serif; color: white; }
+        body[data-theme="cinematic"] #bg-blur {
+            position: fixed; inset: -5%; width: 110%; height: 110%;
             background-size: cover; background-position: center;
-            filter: blur(70px) brightness(0.15); transition: background-image 1.2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 0;
+            filter: blur(60px) brightness(0.3); z-index: 0; display: block;
+        }
+        body[data-theme="cinematic"] .image-frame {
+            border: 1px solid var(--glass-border); background: var(--glass);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 20px var(--accent);
+            border-radius: 20px;
+        }
+        body[data-theme="cinematic"] #image-info { 
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 6px; 
+            text-transform: uppercase; color: #fff; text-shadow: 0 2px 15px rgba(0,0,0,1);
+        }
+        body[data-theme="cinematic"] .icon-btn, body[data-theme="cinematic"] .nav-btn { 
+            background: var(--glass); border: 1px solid var(--glass-border); 
+            backdrop-filter: blur(10px); color: white; border-radius: 50%;
         }
 
-        #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.05); z-index: 1001; }
-        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.5s ease; box-shadow: 0 0 15px var(--accent); }
-
-        #mute-btn {
-            position: fixed; top: 25px; right: 25px; z-index: 1005;
-            background: var(--glass); border: 1px solid var(--border);
-            color: white; width: 45px; height: 45px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;
+        /* --- THEME 2: NEO-BRUTALIST (Ink & Pop) --- */
+        body[data-theme="neo"] { 
+            font-family: 'Space Grotesk', sans-serif; background-color: #FFFDF5; 
+            background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 40px 40px; color: #000;
         }
-        #mute-btn:hover { border-color: var(--accent); background: rgba(255,255,255,0.1); }
-
-        main {
-            position: relative; z-index: 1; height: 100vh; width: 100vw;
-            display: grid; grid-template-rows: 15% 1fr 15%; align-items: center; justify-items: center;
+        body[data-theme="neo"] #bg-blur { display: none; }
+        body[data-theme="neo"] .image-frame {
+            border: 5px solid #000; background: #fff; border-radius: 0;
+            box-shadow: 15px 15px 0px 0px var(--accent);
         }
-
-        #image-info { font-size: 0.65rem; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-sub); text-align: center; }
-
-        .stage { display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; max-width: 1400px; }
-
-        .image-frame {
-            position: relative; width: 75vw; max-width: 900px; aspect-ratio: 16 / 9;
-            background: var(--glass); border: 1px solid var(--border); border-radius: 2px;
-            display: flex; align-items: center; justify-content: center; padding: 6px; overflow: hidden;
-            transition: all 0.8s ease;
+        body[data-theme="neo"] #image-info { 
+            background: var(--secondary); color: #000; padding: 10px 25px; border: 4px solid #000;
+            box-shadow: 8px 8px 0px 0px #000; font-weight: 900; font-size: 1.5rem; transform: rotate(-1.5deg);
+        }
+        body[data-theme="neo"] .icon-btn, body[data-theme="neo"] .nav-btn { 
+            background: #fff; border: 4px solid #000; box-shadow: 5px 5px 0px #000; color: #000; 
         }
 
-        #loader { position: absolute; width: 30px; height: 30px; border: 2px solid var(--border); border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 1s ease; }
+        /* SHARED LAYOUT */
+        main { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: 100px 1fr 100px; align-items: center; justify-items: center; }
+        .controls { position: fixed; top: 30px; right: 30px; display: flex; gap: 15px; z-index: 100; }
+        .icon-btn { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        
+        .stage { display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; padding: 0 40px; }
+        .image-frame { width: 85vw; max-width: 950px; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; padding: 10px; position: relative; transition: all 0.6s ease; }
+        img { max-width: 100%; max-height: 100%; opacity: 0; transition: opacity 0.4s ease; object-fit: contain; }
         .show { opacity: 1; }
+        .nav-btn { width: 65px; height: 65px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: 0.2s; }
+        svg { fill: currentColor; }
 
-        .nav-btn { background: var(--glass); border: 1px solid var(--border); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; z-index: 20; }
-        .nav-btn:hover { border-color: var(--accent); transform: scale(1.1); }
-
-        footer { 
-            width: 100%; max-width: 1300px; display: flex; justify-content: space-between; align-items: flex-end; 
-            font-size: 0.5rem; letter-spacing: 3px; color: var(--text-sub); padding: 0 30px 30px 30px;
-        }
-        .made-by { color: white; text-decoration: none; font-weight: 600; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-
-        #start-overlay { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: opacity 1s ease; }
-
-        #rotate-warning { display: none; }
-        @media (max-width: 650px) and (orientation: portrait) {
-            #rotate-warning { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; text-align: center; padding: 30px; }
-        }
+        /* Start Overlay */
+        #start { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 10px solid #000; }
+        #start h1 { font-family: 'Space Grotesk'; font-size: 12vw; line-height: 0.8; color: #fff; -webkit-text-stroke: 3px #000; text-align: center; }
+        
+        body.focus-mode main > *:not(.stage) { opacity: 0; pointer-events: none; }
     </style>
 </head>
-<body>
+<body data-theme="cinematic">
 
-<div id="rotate-warning"><p style="letter-spacing: 5px; font-size: 0.7rem; line-height: 2;">FULLSCREEN GAMEPLAY RECOMMENDED<br><span style="color:var(--text-sub)">PLEASE ROTATE DEVICE</span></p></div>
-<div id="progress-container"><div id="progress-bar"></div></div>
 <div id="bg-blur"></div>
 
-<button id="mute-btn" onclick="toggleMute()">
-    <svg id="speaker-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-    </svg>
-</button>
+<div class="controls">
+    <button class="icon-btn" onclick="toggleTheme()" title="Switch Theme">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </button>
+    <button class="icon-btn" onclick="toggleMute()" title="Audio Toggle">
+        <svg id="spk" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg>
+    </button>
+</div>
 
-<div id="start-overlay" onclick="startApp()">
-    <p style="letter-spacing: 15px; font-size: 1.2rem; font-weight: 200;">MILES MORALES</p>
-    <p style="color: var(--text-sub); font-size: 0.45rem; margin-top: 25px; letter-spacing: 5px;">LAUNCH GAMEPLAY SHOWCASE</p>
+<div id="start" onclick="init()">
+    <h1>MILES<br>MORALES</h1>
+    <p style="background:#fff; color:#000; padding:15px 30px; margin-top:40px; font-weight:900; border:5px solid #000; box-shadow: 8px 8px 0px #000; font-family:'Space Grotesk';">ENTER THE MULTIVERSE</p>
 </div>
 
 <main>
-    <div id="image-info">LOADING MISSION DATA...</div>
-    <div class="stage" id="touch-zone">
-        <button class="nav-btn" onclick="nav(-1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-        <div class="image-frame" id="frame"><div id="loader"></div><img id="view" src=""></div>
-        <button class="nav-btn" onclick="nav(1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+    <div id="image-info">SELECT MISSION</div>
+    <div class="stage">
+        <button class="nav-btn" onclick="nav(-1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+        <div class="image-frame"><img id="view" src=""></div>
+        <button class="nav-btn" onclick="nav(1)"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
     </div>
-    <footer>
-        <div>MISSION STATUS: IN PROGRESS</div>
-        <div style="text-align: right;">GAMEPLAY CAPTURED BY <a href="https://instagram.com/sherikumrishi" target="_blank" class="made-by">@SHERIKUMRISHI</a></div>
-    </footer>
+    <footer style="font-size: 0.8rem; font-weight: 900; opacity: 0.5; letter-spacing: 2px;">@SHERIKUMRISHI</footer>
 </main>
 
 <audio id="track" loop></audio>
 
 <script>
-    const images = [
-        "spdr/Rise Of Miles.png", "spdr/responsibilities.png", "spdr/Uptown Pride.png", "spdr/Unstoppable flight.png",
-        "spdr/THE ENERGY FLOWS.png", "spdr/purple reign.png", "spdr/last dance.png", "spdr/criterion.png",
-        "spdr/kaboom!.png", "spdr/thats all it is a leap of faith.png", "spdr/Parallel Paths.png",
-        "spdr/one day ima be in the avengers.png", "spdr/no matter how many times i fall i always get back up.png",
-        "spdr/nothing personal.png", "spdr/its in my DNA.png", "spdr/its bitsy spider.png", "spdr/I’m done pulling my punches..png",
-        "spdr/dont mess with the spider.png", "spdr/Divin down.png", "spdr/acrobatics 1.png", "spdr/world of acrobatics.png",
-        "spdr/power within.png", "spdr/I HAVE THE POWER!!!.png", "spdr/gold n gunz.png", "spdr/was it worth it.png",
-        "spdr/42nd & Broadway.png", "spdr/snowy manhattan.png", "spdr/skiing in new york.png", "spdr/criterion 2.png",
-        "spdr/look into my eyes.png", "spdr/2 sides of the same coin.png", "spdr/aint as simple as it looks.png",
-        "spdr/creepy crawler.png", "spdr/like an angel.png", "spdr/nah ima do my own thing now.png", "spdr/Prowler & Pupil.png",
-        "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/YN.png"
-    ];
+    const images = ["spdr/Rise Of Miles.png", "spdr/responsibilities.png", "spdr/Uptown Pride.png", "spdr/Unstoppable flight.png", "spdr/THE ENERGY FLOWS.png", "spdr/purple reign.png", "spdr/last dance.png", "spdr/criterion.png", "spdr/kaboom!.png", "spdr/thats all it is a leap of faith.png", "spdr/Parallel Paths.png", "spdr/one day ima be in the avengers.png", "spdr/no matter how many times i fall i always get back up.png", "spdr/nothing personal.png", "spdr/its in my DNA.png", "spdr/its bitsy spider.png", "spdr/I’m done pulling my punches..png", "spdr/dont mess with the spider.png", "spdr/Divin down.png", "spdr/acrobatics 1.png", "spdr/world of acrobatics.png", "spdr/power within.png", "spdr/I HAVE THE POWER!!!.png", "spdr/gold n gunz.png", "spdr/was it worth it.png", "spdr/42nd & Broadway.png", "spdr/snowy manhattan.png", "spdr/skiing in new york.png", "spdr/criterion 2.png", "spdr/look into my eyes.png", "spdr/2 sides of the same coin.png", "spdr/aint as simple as it looks.png", "spdr/creepy crawler.png", "spdr/like an angel.png", "spdr/nah ima do my own thing now.png", "spdr/Prowler & Pupil.png", "spdr/THE BOY WHO GOT BIT BY A SPIDER.png", "spdr/YN.png"];
+    
+    const palettes = [["#e4c66e", "#f02b2b"], ["#f02b2b", "#182227"], ["#3b535f", "#ee2d2d"], ["#929da5", "#da4647"], ["#99c11f", "#c82727"], ["#1e1746", "#51348c"], ["#8117e3", "#be7ce3"], ["#ed2e2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#364f98", "#e9302e"], ["#dce05e", "#cf4d3f"], ["#364a61", "#b3cd32"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#ee2d2d", "#1a1b26"], ["#be7ce3", "#8117e3"], ["#e6170b", "#966407"], ["#d83c19", "#966407"], ["#f11c1b", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#757383", "#ee2d2d"], ["#1315cd", "#f02b2b"], ["#f80d0c", "#fecd15"], ["#966407", "#e4c66e"], ["#f25b69", "#ca2741"], ["#c7d350", "#24275f"], ["#72b3c7", "#ee2d2d"], ["#24275f", "#eb2c2c"], ["#ee2d2d", "#1a1b26"], ["#ff1300", "#1a1b26"], ["#cf4d3f", "#dce05e"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#92550d", "#ff1300"], ["#d5653a", "#ab43be"], ["#51348c", "#1e1746"], ["#fecd15", "#419d7f"], ["#7da324", "#de5024"]];
 
     let current = 0, first = true, isMuted = false;
-    const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), info = document.getElementById('image-info'), track = document.getElementById('track'), ldr = document.getElementById('loader'), start = document.getElementById('start-overlay'), pBar = document.getElementById('progress-bar'), frame = document.getElementById('frame');
+    const view = document.getElementById('view'), bg = document.getElementById('bg-blur'), track = document.getElementById('track'), info = document.getElementById('image-info');
 
-    const colorMap = { 'purple': '#bf00ff', 'energy': '#00f2ff', 'gold': '#ffcc00', 'dna': '#ff0044', 'prowler': '#9d00ff' };
-
-    function toggleMute() {
-        isMuted = !isMuted;
-        track.muted = isMuted;
-        document.getElementById('speaker-icon').innerHTML = isMuted ? 
-            '<path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6m0-6l6 6"></path>' : 
-            '<path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
-        if (navigator.vibrate) navigator.vibrate(5);
+    function toggleTheme() {
+        document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'cinematic' ? 'neo' : 'cinematic');
     }
 
-    function startApp() {
-        start.style.opacity = '0';
-        setTimeout(() => { start.style.display = 'none'; }, 800);
-        nav(0); 
-    }
+    function init() { document.getElementById('start').style.display = 'none'; nav(0); }
 
     function update() {
         const path = images[current];
+        const [c1, c2] = palettes[current];
         const name = path.split('/').pop().replace(/\.[^/.]+$/, "");
-        
-        let activeColor = '#ffffff';
-        for (const [key, color] of Object.entries(colorMap)) { if (name.toLowerCase().includes(key)) activeColor = color; }
-        document.documentElement.style.setProperty('--accent', activeColor);
-        frame.style.borderColor = activeColor + '55';
-        frame.style.boxShadow = `0 15px 50px ${activeColor}20`;
 
-        pBar.style.width = ((current + 1) / images.length * 100) + '%';
+        // 1. UPDATE TEXT INSTANTLY (Fixes flickering)
+        info.innerText = name;
+        document.documentElement.style.setProperty('--accent', c1);
+        document.documentElement.style.setProperty('--secondary', c2);
+
+        // 2. TRIGGER IMAGE LOAD
         view.classList.remove('show');
-        ldr.style.display = 'block';
-        
-        const tempImg = new Image();
-        tempImg.src = encodeURI(path);
-        tempImg.onload = () => {
+        setTimeout(() => {
             view.src = encodeURI(path);
             bg.style.backgroundImage = `url('${encodeURI(path)}')`;
-            info.innerText = name;
-            ldr.style.display = 'none';
-            view.classList.add('show');
+            view.onload = () => view.classList.add('show');
+
+            // 3. AUDIO UPDATE
             if (!first) { 
-                track.src = `audio/${encodeURIComponent(name)}.mp3`;
-                track.play().catch(() => {});
-                if (navigator.vibrate) navigator.vibrate(10);
+                const newAudioSrc = `audio/${encodeURIComponent(name)}.mp3`;
+                if (track.src !== newAudioSrc) {
+                    track.src = newAudioSrc;
+                    if (!isMuted) track.play().catch(()=>{});
+                }
             }
-        };
+        }, 300);
     }
 
-    function nav(d) {
-        if (first) first = false;
-        current = (current + d + images.length) % images.length;
-        update();
+    function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
+    
+    function toggleMute() { 
+        isMuted = !isMuted; 
+        track.muted = isMuted; 
+        document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1;
+        if (!isMuted && track.paused && !first) track.play();
     }
 
-    // Keyboard controls
-    window.addEventListener('keydown', e => {
-        if (e.key === 'ArrowRight') nav(1);
-        if (e.key === 'ArrowLeft') nav(-1);
-        if (e.key === ' ') toggleMute(); // Space to mute/unmute
-    });
+    window.addEventListener('keydown', e => { if(e.key === "ArrowRight") nav(1); if(e.key === "ArrowLeft") nav(-1); });
 
-    // Touch Support
-    let touchStart = 0;
-    document.addEventListener('touchstart', e => touchStart = e.changedTouches[0].screenX);
-    document.addEventListener('touchend', e => {
-        let touchEnd = e.changedTouches[0].screenX;
-        if (touchStart - touchEnd > 80) nav(1);
-        if (touchEnd - touchStart > 80) nav(-1);
-    });
+    // Focus Mode Support
+    const fOn = () => document.body.classList.add('focus-mode');
+    const fOff = () => document.body.classList.remove('focus-mode');
+    document.addEventListener('mousedown', fOn); document.addEventListener('mouseup', fOff);
+    document.addEventListener('touchstart', fOn); document.addEventListener('touchend', fOff);
 </script>
 </body>
 </html>

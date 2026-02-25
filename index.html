@@ -3,108 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Miles Morales | Project Titan</title>
+    <title>Miles Morales | 16:9 Symmetry</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #FFFDF5; --accent: #FF6B6B; --secondary: #FFD93D; --ink: #000000; --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+        :root { 
+            --bg: #FFFDF5; 
+            --accent: #FF6B6B; 
+            --secondary: #FFD93D; 
+            --ink: #000000; 
+            --ease: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100dvh; overflow: hidden; background-color: var(--bg); background-image: radial-gradient(var(--ink) 1px, transparent 1px); background-size: 30px 30px; }
+        body, html { width: 100%; height: 100dvh; overflow: hidden; background-color: var(--bg); }
+
+        /* GRID BACKGROUND */
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        /* ORIENTATION GUARD */
+        #rotate-notice {
+            position: fixed; inset: 0; background: var(--ink); z-index: 10000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            color: white; text-align: center;
+        }
+        @media (orientation: portrait) { #rotate-notice { display: flex; } }
+
+        /* HEADER UI */
+        .top-ui { 
+            position: fixed; top: 30px; left: 0; width: 100%; 
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 0 40px; z-index: 1000; pointer-events: none; 
+        }
         
-        #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 8px; background: #fff; border-bottom: 3px solid var(--ink); z-index: 2000; }
-        #progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.4s var(--ease); }
+        #image-info { 
+            background: var(--secondary); padding: 12px 30px; border: 4px solid var(--ink);
+            box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-size: 1.4rem;
+            text-transform: uppercase; transform: rotate(-1.5deg); pointer-events: auto;
+        }
 
-        main { position: relative; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        
-        /* THE STAGE: Responsive & Framed */
-        .stage { position: relative; width: 100%; height: 100%; max-width: 1100px; max-height: 80vh; display: flex; align-items: center; justify-content: center; }
-        .image-frame { width: 100%; height: 100%; background: white; border: 5px solid var(--ink); box-shadow: 15px 15px 0 var(--ink); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: 0.3s var(--ease); }
-        img { max-width: 95%; max-height: 95%; object-fit: contain; opacity: 0; transform: scale(0.95); transition: 0.5s var(--ease); }
-        img.show { opacity: 1; transform: scale(1); }
+        .vol-toggle { 
+            pointer-events: auto; width: 60px; height: 60px; background: var(--accent); 
+            border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
 
-        /* HUD & INFO */
-        .hud { position: absolute; bottom: -30px; display: flex; flex-direction: column; align-items: center; width: 100%; pointer-events: none; }
-        #image-info { background: var(--secondary); padding: 10px 25px; border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); font-weight: 900; font-size: 1.2rem; pointer-events: auto; }
+        /* THE SYMMETRICAL STAGE */
+        main { 
+            position: relative; z-index: 10; height: 100dvh; width: 100%; 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 20px;
+        }
 
-        /* NAV ZONES */
-        .click-zone { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 100; cursor: pointer; }
-        .click-zone.left { left: 0; } .click-zone.right { right: 0; }
+        .gallery-container {
+            display: flex; align-items: center; justify-content: center;
+            gap: 40px; /* Adjust this to move buttons closer/further from frame */
+            width: 100%;
+        }
 
-        /* START OVERLAY */
-        #start-overlay { position: fixed; inset: 0; background: var(--accent); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 10px solid var(--ink); transition: 0.6s var(--ease); }
-        #start-overlay h1 { font-size: 12vw; color: white; -webkit-text-stroke: 3px var(--ink); text-align: center; line-height: 0.8; }
+        .stage { 
+            position: relative; 
+            width: 70vw; /* Keeps the 25%ish side buffer */
+            max-width: 900px;
+            aspect-ratio: 16 / 9;
+            background: #fff; 
+            border: 6px solid var(--ink); 
+            box-shadow: 20px 20px 0 var(--ink); 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: hidden;
+        }
 
-        .top-btns { position: fixed; top: 30px; right: 30px; z-index: 1005; display: flex; gap: 15px; }
-        .btn-neo { width: 50px; height: 50px; background: #fff; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-neo:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+        #view { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s var(--ease); }
+        #view.show { opacity: 1; }
 
-        body.focus-mode .hud, body.focus-mode .top-btns, body.focus-mode #progress-container { opacity: 0; }
+        /* THEMED NAVIGATION */
+        .nav-btn {
+            background: white; border: 4px solid var(--ink); color: var(--ink);
+            width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 6px 6px 0 var(--ink); transition: 0.1s;
+            flex-shrink: 0; /* Prevents buttons from squishing */
+        }
+        .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--ink); }
+        .nav-btn svg { width: 30px; height: 30px; stroke-width: 4px; }
+
+        /* OVERLAYS */
+        #start-overlay { 
+            position: fixed; inset: 0; background: var(--accent); z-index: 9000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            cursor: pointer; border: 12px solid var(--ink); transition: 0.8s var(--ease);
+        }
+        #start-overlay h1 { font-size: 10vw; color: white; -webkit-text-stroke: 3px var(--ink); line-height: 0.8; text-align: center; }
+
+        @media (max-width: 768px) {
+            .gallery-container { gap: 15px; }
+            .nav-btn { width: 50px; height: 50px; }
+            .stage { width: 80vw; }
+        }
     </style>
 </head>
 <body>
 
-<div id="progress-container"><div id="progress-bar"></div></div>
+<div class="bg-grid"></div>
 
-<div class="top-btns">
-    <button class="btn-neo" onclick="toggleMute()"><svg id="spk" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M11 5L6 9H2v6h4l5 4V5z"></path></svg></button>
+<div id="rotate-notice">
+    <h2 style="font-size: 2rem; font-weight: 900;">LANDSCAPE MODE ONLY</h2>
 </div>
 
 <div id="start-overlay" onclick="startApp()">
     <h1>MILES<br>MORALES</h1>
-    <p style="background:white; border:4px solid #000; padding:10px 20px; margin-top:40px; font-weight:900; box-shadow:8px 8px 0 #000;">LAUNCH MISSION</p>
+    <div style="background: white; border: 4px solid #000; padding: 15px 40px; margin-top: 40px; font-weight: 900; box-shadow: 10px 10px 0px 0px #000;">
+        START MISSION
+    </div>
+</div>
+
+<div class="top-ui">
+    <div id="image-info">HUB ACTIVE</div>
+    <div class="vol-toggle" onclick="toggleVolume()">
+        <svg id="vol-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="3">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            <path id="vol-waves" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+    </div>
 </div>
 
 <main>
-    <div class="stage">
-        <div class="click-zone left" onclick="nav(-1)"></div>
-        <div class="click-zone right" onclick="nav(1)"></div>
-        <div class="image-frame">
+    <div class="gallery-container">
+        <button class="nav-btn" onclick="nav(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+
+        <div class="stage">
             <img id="view" src="">
         </div>
-        <div class="hud">
-            <div id="image-info">SELECT MISSION</div>
-        </div>
+
+        <button class="nav-btn" onclick="nav(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
     </div>
 </main>
 
 <audio id="track" loop></audio>
 
 <script>
-    const images = ["2 sides of the same coin.png", "42nd & Broadway.png", "acrobatics 1.png", "aint as simple as it looks.png", "creepy crawler.png", "criterion 2.png", "criterion.png", "Divin down.png", "dont mess with the spider.png", "gold n gunz.png", "I HAVE THE POWER!!!.png", "I’m done pulling my punches..png", "its bitsy spider.png", "its in my DNA.png", "kaboom!.png", "last dance.png", "like an angel.png", "look into my eyes.png", "nah ima do my own thing now.png", "no matter how many times i fall i always get back up.png", "nothing personal.png", "one day ima be in the avengers.png", "Parallel Paths.png", "power within.png", "Prowler & Pupil.png", "purple reign.png", "responsibilities.png", "Rise Of Miles.png", "skiing in new york.png", "snowy manhattan.png", "thats all it is a leap of faith.png", "THE BOY WHO GOT BIT BY A SPIDER.png", "THE ENERGY FLOWS.png", "Unstoppable flight.png", "Uptown Pride.png", "was it worth it.png", "world of acrobatics.png", "YN.png"];
-    const palettes = [["#cf4d3f", "#dce05e"], ["#c7d350", "#24275f"], ["#ed2c2c", "#1a1b26"], ["#ee2d2c", "#1a1b26"], ["#c12d2b", "#1a1b26"], ["#ee2d2d", "#1a1b26"], ["#ed2e2d", "#1a1b26"], ["#f11c1b", "#24275f"], ["#d83c19", "#966407"], ["#966407", "#e4c66e"], ["#f80d0c", "#fecd15"], ["#e6170b", "#966407"], ["#be7ce3", "#8117e3"], ["#ee2d2d", "#1a1b26"], ["#ee1e1e", "#fecd15"], ["#8117e3", "#be7ce3"], ["#92550d", "#ff1300"], ["#ff1300", "#1a1b26"], ["#d5653a", "#ab43be"], ["#ab43be", "#8117e3"], ["#b3cd32", "#364a61"], ["#364a61", "#b3cd32"], ["#dce05e", "#cf4d3f"], ["#1315cd", "#f02b2b"], ["#51348c", "#1e1746"], ["#1e1746", "#51348c"], ["#f02b2b", "#182227"], ["#e4c66e", "#f02b2b"], ["#24275f", "#eb2c2c"], ["#72b3c7", "#ee2d2d"], ["#364f98", "#e9302e"], ["#fecd15", "#419d7f"], ["#99c11f", "#c82727"], ["#929da5", "#da4647"], ["#3b535f", "#ee2d2d"], ["#f25b69", "#ca2741"], ["#757383", "#ee2d2d"], ["#7da324", "#de5024"]];
-    
-    let current = 0, first = true, isMuted = false;
-    const view = document.getElementById('view'), info = document.getElementById('image-info'), pBar = document.getElementById('progress-bar'), track = document.getElementById('track');
+    const images = ["Rise Of Miles.png", "responsibilities.png", "Uptown Pride.png", "Unstoppable flight.png", "THE ENERGY FLOWS.png", "purple reign.png", "last dance.png", "criterion.png", "kaboom!.png", "thats all it is a leap of faith.png", "Parallel Paths.png", "one day ima be in the avengers.png", "no matter how many times i fall i always get back up.png", "nothing personal.png", "its in my DNA.png", "its bitsy spider.png", "I’m done pulling my punches..png", "dont mess with the spider.png", "Divin down.png", "acrobatics 1.png", "world of acrobatics.png", "power within.png", "I HAVE THE POWER!!!.png", "gold n gunz.png", "was it worth it.png", "42nd & Broadway.png", "snowy manhattan.png", "skiing in new york.png", "criterion 2.png", "look into my eyes.png", "2 sides of the same coin.png", "aint as simple as it looks.png", "creepy crawler.png", "like an angel.png", "nah ima do my own thing now.png", "Prowler & Pupil.png", "THE BOY WHO GOT BIT BY A SPIDER.png", "YN.png"];
 
-    function startApp() { document.getElementById('start-overlay').style.opacity = '0'; setTimeout(()=> document.getElementById('start-overlay').style.display='none', 600); nav(0); }
+    let current = 0, first = true, isMuted = false;
+    const view = document.getElementById('view'), info = document.getElementById('image-info'), track = document.getElementById('track'), start = document.getElementById('start-overlay');
+
+    function startApp() {
+        start.style.transform = 'translateY(-100%)';
+        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+        nav(0);
+    }
+
+    function toggleVolume() {
+        isMuted = !isMuted;
+        track.muted = isMuted;
+        document.getElementById('vol-waves').style.display = isMuted ? 'none' : 'block';
+        document.getElementById('vol-icon').style.stroke = isMuted ? "rgba(255,255,255,0.3)" : "white";
+        if(!isMuted) track.play().catch(()=>{});
+    }
 
     function update() {
-        const fileName = images[current], [c1, c2] = palettes[current], baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+        const fileName = images[current];
+        const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
         view.classList.remove('show');
         
         setTimeout(() => {
             view.src = `spdr/${encodeURIComponent(fileName)}`;
             info.innerText = baseName;
-            info.style.background = c2;
             info.style.transform = `rotate(${Math.random() * 4 - 2}deg)`;
-            document.documentElement.style.setProperty('--accent', c1);
-            pBar.style.width = ((current + 1) / images.length * 100) + '%';
             
             view.onload = () => {
                 view.classList.add('show');
-                if(!first) {
+                if (!first) {
                     track.src = `audio/${encodeURIComponent(baseName)}.mp3`;
-                    if(!isMuted) track.play().catch(()=>{});
+                    if (!isMuted) track.play().catch(() => {});
                 }
             };
-        }, 300);
+        }, 200);
     }
 
     function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
-    function toggleMute() { isMuted = !isMuted; track.muted = isMuted; document.getElementById('spk').style.opacity = isMuted ? 0.3 : 1; }
-    
-    window.addEventListener('keydown', e => { if(e.key==='ArrowRight') nav(1); if(e.key==='ArrowLeft') nav(-1); });
-    let fT; const fOn = () => fT = setTimeout(() => document.body.classList.add('focus-mode'), 500); const fOff = () => { clearTimeout(fT); document.body.classList.remove('focus-mode'); };
-    document.addEventListener('touchstart', fOn); document.addEventListener('touchend', fOff);
 </script>
 </body>
 </html>

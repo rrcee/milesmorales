@@ -3,108 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Miles Morales | 16:9 Symmetry</title>
+    <title>Miles Morales | Titan Overdrive</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #FFFDF5; 
-            --accent: #FF6B6B; 
-            --secondary: #FFD93D; 
-            --ink: #000000; 
-            --ease: cubic-bezier(0.19, 1, 0.22, 1);
+            --bg: #FFFDF5; --accent: #FF6B6B; --secondary: #FFD93D; --ink: #000000; 
+            --ease-snap: cubic-bezier(0.8, 0, 0.2, 1);
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100dvh; overflow: hidden; background-color: var(--bg); }
 
-        /* GRID BACKGROUND */
         .bg-grid {
             position: fixed; inset: 0;
-            background-image: 
-                linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: 0;
+            background-image: radial-gradient(var(--ink) 1.5px, transparent 1.5px);
+            background-size: 35px 35px; z-index: 0; opacity: 0.15;
+            animation: gridDrift 20s linear infinite;
         }
+        @keyframes gridDrift { 0% { background-position: 0 0; } 100% { background-position: -70px 70px; } }
 
-        /* ORIENTATION GUARD */
+        /* --- ORIENTATION GUARD & ANIMATION --- */
         #rotate-notice {
-            position: fixed; inset: 0; background: var(--ink); z-index: 10000;
+            position: fixed; inset: 0; background: var(--accent); z-index: 10000;
             display: none; flex-direction: column; justify-content: center; align-items: center;
-            color: white; text-align: center;
+            border: 12px solid var(--ink);
         }
         @media (orientation: portrait) { #rotate-notice { display: flex; } }
 
-        /* HEADER UI */
-        .top-ui { 
-            position: fixed; top: 30px; left: 0; width: 100%; 
-            display: flex; justify-content: space-between; align-items: flex-start;
-            padding: 0 40px; z-index: 1000; pointer-events: none; 
+        .phone-icon {
+            width: 70px; height: 120px; border: 6px solid var(--ink); border-radius: 12px;
+            background: #fff; position: relative;
+            animation: flipPhone 2s var(--ease-snap) infinite;
+            box-shadow: 10px 10px 0 var(--ink);
+            margin-bottom: 40px;
         }
+        .phone-icon::after {
+            content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+            width: 14px; height: 14px; border: 4px solid var(--ink); border-radius: 50%;
+        }
+        @keyframes flipPhone {
+            0%, 20% { transform: rotate(0deg); }
+            80%, 100% { transform: rotate(-90deg); }
+        }
+
+        /* --- UI ELEMENTS --- */
+        .top-ui { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         
-        #image-info { 
-            background: var(--secondary); padding: 12px 30px; border: 4px solid var(--ink);
-            box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-size: 1.4rem;
-            text-transform: uppercase; transform: rotate(-1.5deg); pointer-events: auto;
+        /* The Information Strip at the bottom */
+        .bottom-ui { 
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; 
+            background: var(--ink); display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 30px; z-index: 1000; border-top: 5px solid var(--secondary);
+        }
+        #image-info { color: white; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .credit-link {
+            background: var(--accent); color: var(--ink); padding: 5px 15px;
+            font-weight: 900; font-size: 0.9rem; text-decoration: none; border: 3px solid var(--ink);
+            box-shadow: 4px 4px 0 white; text-transform: uppercase;
+            transition: 0.2s var(--ease-bounce);
+            animation: pulseWarning 3s infinite;
+        }
+        .credit-link:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 white; }
+        .credit-link:active { transform: translate(4px, 4px); box-shadow: 0 0 0 white; }
+        
+        @keyframes pulseWarning {
+            0%, 100% { background: var(--accent); }
+            50% { background: var(--secondary); }
         }
 
         .vol-toggle { 
-            pointer-events: auto; width: 60px; height: 60px; background: var(--accent); 
-            border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            width: 55px; height: 55px; background: white; border: 4px solid var(--ink); 
+            box-shadow: 6px 6px 0 var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.2s var(--ease-bounce);
         }
+        .vol-toggle:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+        .vol-toggle:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
 
-        /* THE SYMMETRICAL STAGE */
-        main { 
-            position: relative; z-index: 10; height: 100dvh; width: 100%; 
-            display: flex; align-items: center; justify-content: center; 
-            padding: 20px;
-        }
+        /* --- THE STAGE --- */
+        main { position: relative; z-index: 10; height: calc(100dvh - 60px); width: 100%; display: flex; align-items: center; justify-content: center; }
 
-        .gallery-container {
-            display: flex; align-items: center; justify-content: center;
-            gap: 40px; /* Adjust this to move buttons closer/further from frame */
-            width: 100%;
-        }
+        .gallery-container { display: flex; align-items: center; justify-content: center; gap: 30px; width: 100%; padding: 0 15px; }
 
         .stage { 
-            position: relative; 
-            width: 70vw; /* Keeps the 25%ish side buffer */
-            max-width: 900px;
-            aspect-ratio: 16 / 9;
-            background: #fff; 
-            border: 6px solid var(--ink); 
-            box-shadow: 20px 20px 0 var(--ink); 
-            display: flex; align-items: center; justify-content: center; 
-            overflow: hidden;
+            position: relative; width: 75vw; max-width: 1200px; aspect-ratio: 16 / 9;
+            background: #fff; border: 6px solid var(--ink); box-shadow: 16px 16px 0 var(--ink); 
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            transition: transform 0.3s var(--ease-snap);
         }
 
-        #view { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s var(--ease); }
-        #view.show { opacity: 1; }
+        /* Glitchy Preloader Text */
+        .stage::after {
+            content: "DECODING SIGNAL..."; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-weight: 900; font-size: 1.5rem; color: var(--ink); opacity: 0;
+            transition: opacity 0.2s; letter-spacing: 4px;
+        }
+        .stage.loading::after { opacity: 1; animation: glitchText 0.3s infinite; }
+        @keyframes glitchText {
+            0% { transform: translate(-50%, -50%) skew(0deg); }
+            20% { transform: translate(-52%, -50%) skew(-5deg); color: var(--accent); }
+            40% { transform: translate(-48%, -50%) skew(5deg); color: var(--ink); }
+            60% { transform: translate(-50%, -52%) skew(0deg); color: var(--secondary); }
+            80% { transform: translate(-50%, -48%) skew(0deg); color: var(--ink); }
+        }
 
-        /* THEMED NAVIGATION */
+        /* Snap-in Animation for Images */
+        #view { width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.05); transition: opacity 0.4s ease, transform 0.4s var(--ease-bounce); z-index: 2; }
+        #view.show { opacity: 1; transform: scale(1); }
+
+        /* --- NAVIGATION BUTTONS --- */
         .nav-btn {
             background: white; border: 4px solid var(--ink); color: var(--ink);
-            width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 6px 6px 0 var(--ink); transition: 0.1s;
-            flex-shrink: 0; /* Prevents buttons from squishing */
+            width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 6px 6px 0 var(--ink); flex-shrink: 0;
+            transition: 0.2s var(--ease-bounce);
         }
-        .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--ink); }
-        .nav-btn svg { width: 30px; height: 30px; stroke-width: 4px; }
-
-        /* OVERLAYS */
-        #start-overlay { 
-            position: fixed; inset: 0; background: var(--accent); z-index: 9000; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            cursor: pointer; border: 12px solid var(--ink); transition: 0.8s var(--ease);
-        }
-        #start-overlay h1 { font-size: 10vw; color: white; -webkit-text-stroke: 3px var(--ink); line-height: 0.8; text-align: center; }
+        .nav-btn:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--ink); background: var(--secondary); }
+        .nav-btn:active { transform: translate(6px, 6px); box-shadow: 0 0 0 var(--ink); background: var(--accent); color: white; }
 
         @media (max-width: 768px) {
-            .gallery-container { gap: 15px; }
-            .nav-btn { width: 50px; height: 50px; }
-            .stage { width: 80vw; }
+            .stage { width: 68vw; border-width: 4px; box-shadow: 8px 8px 0 var(--ink); }
+            .nav-btn { width: 48px; height: 48px; }
+            .bottom-ui { padding: 0 15px; flex-direction: column; justify-content: center; gap: 5px; height: 75px; }
+            #image-info { font-size: 1rem; }
+            .credit-link { font-size: 0.7rem; padding: 3px 10px; }
+            main { height: calc(100dvh - 75px); }
         }
+
+        /* --- START OVERLAY --- */
+        #start-overlay { 
+            position: fixed; inset: 0; background: var(--secondary); z-index: 9000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            cursor: pointer; border: 15px solid var(--ink); transition: transform 0.6s var(--ease-snap);
+        }
+        #start-overlay:hover h1 { transform: scale(1.05) rotate(-2deg); }
+        #start-overlay h1 { font-size: 15vw; color: white; -webkit-text-stroke: 4px var(--ink); text-shadow: 10px 10px 0 var(--ink); transition: 0.3s var(--ease-bounce); }
     </style>
 </head>
 <body>
@@ -112,41 +146,35 @@
 <div class="bg-grid"></div>
 
 <div id="rotate-notice">
-    <h2 style="font-size: 2rem; font-weight: 900;">LANDSCAPE MODE ONLY</h2>
+    <div class="phone-icon"></div>
+    <h2 style="font-size: 2.5rem; font-weight: 900; color: var(--ink); text-transform: uppercase; letter-spacing: -1px; text-shadow: 3px 3px 0 white;">Rotate Device</h2>
+    <p style="font-weight: 700; color: var(--ink); margin-top: 10px; background: white; padding: 5px 15px; border: 3px solid var(--ink);">LANDSCAPE REQUIRED</p>
 </div>
 
-<div id="start-overlay" onclick="startApp()">
-    <h1>MILES<br>MORALES</h1>
-    <div style="background: white; border: 4px solid #000; padding: 15px 40px; margin-top: 40px; font-weight: 900; box-shadow: 10px 10px 0px 0px #000;">
-        START MISSION
-    </div>
+<div id="start-overlay" onclick="initiateTitan()">
+    <h1>ENTER</h1>
 </div>
 
 <div class="top-ui">
-    <div id="image-info">HUB ACTIVE</div>
     <div class="vol-toggle" onclick="toggleVolume()">
-        <svg id="vol-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="3">
+        <svg id="vol-icon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="black" stroke-width="3">
             <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
-            <path id="vol-waves" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
         </svg>
     </div>
 </div>
 
 <main>
     <div class="gallery-container">
-        <button class="nav-btn" onclick="nav(-1)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        </button>
-
-        <div class="stage">
-            <img id="view" src="">
-        </div>
-
-        <button class="nav-btn" onclick="nav(1)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
+        <button class="nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="30"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        <div class="stage" id="main-stage"><img id="view" src=""></div>
+        <button class="nav-btn" onclick="nav(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="30"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
     </div>
 </main>
+
+<div class="bottom-ui">
+    <div id="image-info">STANDBY...</div>
+    <a href="https://instagram.com/sherikumrishi" target="_blank" class="credit-link">In-Game Photography by @sherikumrishi</a>
+</div>
 
 <audio id="track" loop></audio>
 
@@ -154,43 +182,51 @@
     const images = ["Rise Of Miles.png", "responsibilities.png", "Uptown Pride.png", "Unstoppable flight.png", "THE ENERGY FLOWS.png", "purple reign.png", "last dance.png", "criterion.png", "kaboom!.png", "thats all it is a leap of faith.png", "Parallel Paths.png", "one day ima be in the avengers.png", "no matter how many times i fall i always get back up.png", "nothing personal.png", "its in my DNA.png", "its bitsy spider.png", "I’m done pulling my punches..png", "dont mess with the spider.png", "Divin down.png", "acrobatics 1.png", "world of acrobatics.png", "power within.png", "I HAVE THE POWER!!!.png", "gold n gunz.png", "was it worth it.png", "42nd & Broadway.png", "snowy manhattan.png", "skiing in new york.png", "criterion 2.png", "look into my eyes.png", "2 sides of the same coin.png", "aint as simple as it looks.png", "creepy crawler.png", "like an angel.png", "nah ima do my own thing now.png", "Prowler & Pupil.png", "THE BOY WHO GOT BIT BY A SPIDER.png", "YN.png"];
 
     let current = 0, first = true, isMuted = false;
-    const view = document.getElementById('view'), info = document.getElementById('image-info'), track = document.getElementById('track'), start = document.getElementById('start-overlay');
+    const view = document.getElementById('view'), info = document.getElementById('image-info'), track = document.getElementById('track'), stage = document.getElementById('main-stage');
 
-    function startApp() {
-        start.style.transform = 'translateY(-100%)';
-        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-        nav(0);
+    // AGGRESSIVE FULLSCREEN LOCK
+    async function lockScreen() {
+        try {
+            if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+            if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+        } catch (err) { console.log("Orientation lock denied, relying on CSS guard."); }
     }
 
-    function toggleVolume() {
-        isMuted = !isMuted;
-        track.muted = isMuted;
-        document.getElementById('vol-waves').style.display = isMuted ? 'none' : 'block';
-        document.getElementById('vol-icon').style.stroke = isMuted ? "rgba(255,255,255,0.3)" : "white";
-        if(!isMuted) track.play().catch(()=>{});
+    function initiateTitan() { 
+        document.getElementById('start-overlay').style.transform = 'translateY(-100%)'; 
+        lockScreen();
+        nav(0); 
     }
+
+    // Re-assert fullscreen if user clicks anywhere after accidentally exiting
+    document.addEventListener('click', () => { if(!first && !document.fullscreenElement) lockScreen(); });
 
     function update() {
-        const fileName = images[current];
-        const baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-        view.classList.remove('show');
+        const file = images[current];
+        const base = file.substring(0, file.lastIndexOf('.'));
         
-        setTimeout(() => {
-            view.src = `spdr/${encodeURIComponent(fileName)}`;
-            info.innerText = baseName;
-            info.style.transform = `rotate(${Math.random() * 4 - 2}deg)`;
+        view.classList.remove('show');
+        stage.classList.add('loading');
+        info.innerText = "DECODING...";
+
+        const nextImg = new Image();
+        nextImg.src = `spdr/${encodeURIComponent(file)}`;
+        
+        nextImg.onload = () => {
+            view.src = nextImg.src;
+            stage.classList.remove('loading');
+            view.classList.add('show');
+            info.innerText = base;
             
-            view.onload = () => {
-                view.classList.add('show');
-                if (!first) {
-                    track.src = `audio/${encodeURIComponent(baseName)}.mp3`;
-                    if (!isMuted) track.play().catch(() => {});
-                }
-            };
-        }, 200);
+            if (!first) {
+                track.src = `audio/${encodeURIComponent(base)}.mp3`;
+                if (!isMuted) track.play().catch(()=>{});
+            }
+        };
     }
 
     function nav(d) { if (first) first = false; current = (current + d + images.length) % images.length; update(); }
+    function toggleVolume() { isMuted = !isMuted; track.muted = isMuted; document.getElementById('vol-icon').style.opacity = isMuted ? 0.3 : 1; }
 </script>
 </body>
 </html>

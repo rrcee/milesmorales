@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Miles Morales | Web of Life Signal</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&display=swap" rel="stylesheet">
@@ -188,18 +189,19 @@ body::after{content:'';position:fixed;inset:0;z-index:3;pointer-events:none;back
    MAIN GALLERY VIEW
 ══════════════════════════════════════════ */
 main{
-  position:relative;z-index:10;height:100dvh;width:100%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding-top:50px;padding-bottom:118px; /* 62 bar + 56 filmstrip */
+  position:fixed;
+  top:50px; bottom:118px;
+  left:0; right:0;
+  z-index:10;
+  display:flex;align-items:center;justify-content:center;
 }
-.gallery-container{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;padding:0 8px;flex:1;min-height:0;}
+.gallery-container{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;height:100%;padding:0 8px;}
 
 /* ── STAGE ── */
-.stage-wrap{position:relative;flex:0 1 auto;min-width:0;min-height:0;display:flex;align-items:center;}
+.stage-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
 .stage{
   position:relative;
-  height:100%;
-  max-height:calc(100dvh - 50px - 118px - 12px);
+  height:calc(100dvh - 50px - 118px - 16px);
   width:auto;max-width:72vw;
   aspect-ratio:16/9;
   background:var(--surface);overflow:hidden;
@@ -390,8 +392,8 @@ main{
   .bottom-ui{height:40px;padding:0 10px;}
   .filmstrip-bar{height:44px;bottom:40px;}
   .thumb{width:64px;height:36px;}
-  main{padding-top:38px;padding-bottom:84px;}
-  .stage{max-height:calc(100dvh - 38px - 84px - 8px);max-width:64vw;}
+  main{top:38px;bottom:84px;}
+  .stage{height:calc(100dvh - 38px - 84px - 10px);max-width:64vw;}
   .gallery-container{gap:8px;}
   .nav-btn{width:38px;height:38px;}
   #image-info{font-size:.9rem;}
@@ -926,11 +928,15 @@ function initiateGallery() {
   const ov = document.getElementById('start-overlay');
   ov.style.opacity='0'; ov.style.transform='scale(1.05)';
   setTimeout(()=>{ ov.style.display='none'; },800);
-  lockScreen();
+  // lockScreen must be called directly inside user gesture handler
+  try {
+    if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+    if(screen.orientation?.lock) screen.orientation.lock('landscape').catch(()=>{});
+  } catch(e){}
   nav(0);
   setTimeout(buildFilmstrip, 500);
 }
-document.addEventListener('click',()=>{ if(!first&&!document.fullscreenElement) lockScreen(); });
+document.addEventListener('click',()=>{ if(!first&&!document.fullscreenElement){ try{ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){} } });
 
 /* ══ DRAG SWIPE with momentum ══ */
 let dragStartX=null, dragCurrentX=null, isDragging=false;

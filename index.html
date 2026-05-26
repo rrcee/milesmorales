@@ -7,6 +7,7 @@
   
   <link rel="icon" type="image/png" href="miles.png">
   
+  <!-- Preload core animation libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
   
@@ -25,7 +26,6 @@
       height: 100vh;
     }
 
-    /* BASE BACKGROUND CANVAS */
     .container {
       width: 100%;
       height: 100%;
@@ -34,11 +34,10 @@
       top: 0;
       background-size: cover;
       background-position: center;
-      transition: background-image 0.6s ease-in-out;
+      transition: background-image 0.4s ease-in-out;
       overflow: hidden;
     }
 
-    /* FROSTED GLASS TRANSLUCENT COATING LAYER OVER BACKDROP */
     .glass-overlay {
       position: absolute;
       top: 0;
@@ -51,7 +50,6 @@
       z-index: 1;
     }
 
-    /* STYLIZED EMBEDDED MAKER SIGNATURE HEADER BADGE */
     .info {
       position: absolute;
       z-index: 20;
@@ -76,7 +74,6 @@
       text-shadow: 0 0 8px rgba(229, 27, 36, 0.6);
     }
 
-    /* CREDITS LOGO LAYER (miles.png) */
     .maker-logo {
       position: absolute;
       z-index: 20;
@@ -90,7 +87,6 @@
       filter: drop-shadow(0 0 8px rgba(229, 27, 36, 0.6));
     }
 
-    /* CAROUSEL GEOMETRY PORTALS */
     .center {
       position: absolute;
       left: 50%;
@@ -119,7 +115,6 @@
       align-items: center;
     }
 
-    /* SCREENSHOT CARDS STYLE */
     .card {
       display: block;
       width: 500px;
@@ -131,11 +126,11 @@
       border: 3px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
       transition: border-color 0.4s, box-shadow 0.4s;
+      background: #080811;
     }
 
     .card:active { cursor: grabbing; }
 
-    /* HIGHLIGHT ACTIVE CARD */
     .item.featured-active .card {
       border-color: #e51b24;
       box-shadow: 0 0 30px rgba(229, 27, 36, 0.4);
@@ -151,7 +146,6 @@
       pointer-events: none;
     }
 
-    /* FULLSCREEN VIEWING LIGHTBOX OVERLAY */
     .lightbox-overlay {
       position: fixed;
       top: 0;
@@ -189,7 +183,6 @@
 
     .lightbox-overlay.is-open img { transform: scale(1); }
 
-    /* EXPANDED VIEW IMAGE TITLES STYLING */
     .lightbox-title {
       font-size: 1.1rem;
       text-transform: uppercase;
@@ -208,7 +201,6 @@
       opacity: 0.8;
     }
 
-    /* RESPONSIVE SCALING FOR PHONES */
     @media (max-width: 768px) {
       .center { top: 44%; }
       .items { transform-origin: center 180vh; }
@@ -223,7 +215,6 @@
 <body>
 
   <div class="container" id="blur-bg">
-    
     <div class="glass-overlay"></div>
     
     <div class="info">
@@ -262,6 +253,9 @@
     const midIndex = (imageSize - 1) / 2;
     const maxScrollLimit = midIndex * degree;
 
+    // Cache tracker to avoid asking the server for the same file twice
+    const preloadedSet = new Set();
+
     const formatDisplayTitle = (rawText) => {
       return rawText
         .split(' ')
@@ -269,16 +263,18 @@
         .join(' ');
     };
 
-    // --- HTML INJECTION ---
+    // --- HTML INJECTION ENGINE (.PNG Restored) ---
     const buildGallery = () => {
       let htmlContent = "";
       imageTitles.forEach((title) => {
         const cleanTitle = title.replace(/"/g, '&quot;');
         const formattedTitle = formatDisplayTitle(title);
+        
+        // Retained your native browser optimization rule loading="lazy" 
         htmlContent += `
           <div class="item" data-audio="audio/${cleanTitle}.mp3" data-img-src="spdr/${cleanTitle}.png" data-title="${formattedTitle}">
             <div class="card">
-              <img class="image" src="spdr/${cleanTitle}.png" alt="${cleanTitle}" />
+              <img class="image" loading="lazy" src="spdr/${cleanTitle}.png" alt="${cleanTitle}" />
             </div>
           </div>
         `;
@@ -290,38 +286,56 @@
 
     const items = gsap.utils.toArray(".item");
 
-    // --- INITIAL FINITE ARRAYS ALIGNMENT TRACKS ---
     const init = () => {
       items.forEach((image, index) => {
         const targetRotation = (index - midIndex) * degree;
-        
         gsap.set(image, {
           transformOrigin: "center 250vh",
           rotation: targetRotation,
           scale: 1
         });
       });
-      
       checkActiveCard();
     };
 
-    // --- EVALUATE CENTER CARD AND UPDATE BLUR BACKGROUND ---
+    // --- SMART PRELOAD ENGINE (LOOK-AHEAD FOR BACKGROUND CHANGING) ---
+    const preloadAdjacentImages = (currentIndex) => {
+      // Looks at current image, next 2 images, and previous 2 images
+      const lookAheadRange = [currentIndex, currentIndex + 1, currentIndex - 1, currentIndex + 2, currentIndex - 2];
+      
+      lookAheadRange.forEach(idx => {
+        if (idx >= 0 && idx < imageSize) {
+          const cleanTitle = imageTitles[idx].replace(/"/g, '&quot;');
+          const targetUrl = `spdr/${cleanTitle}.png`;
+          
+          if (!preloadedSet.has(targetUrl)) {
+            const imgCache = new Image();
+            imgCache.src = targetUrl;
+            preloadedSet.add(targetUrl); // Keeps track of what's already cached
+          }
+        }
+      });
+    };
+
+    // --- EVALUATE CENTER CARD AND UPDATE BACKGROUND ---
     const checkActiveCard = () => {
       const containerRotation = gsap.getProperty(".items", "rotation");
       
       let targetActiveItem = null;
       let closestAngleOffset = Infinity;
+      let activeIndex = 0;
 
-      items.forEach((item) => {
+      items.forEach((item, index) => {
         item.classList.remove("featured-active");
         
         const elementRotation = gsap.getProperty(item, "rotation");
         const trueNetAngle = elementRotation + containerRotation;
-        
         const absoluteDelta = Math.abs(trueNetAngle);
+        
         if (absoluteDelta < closestAngleOffset) {
           closestAngleOffset = absoluteDelta;
           targetActiveItem = item;
+          activeIndex = index;
         }
       });
 
@@ -329,10 +343,12 @@
         targetActiveItem.classList.add("featured-active");
         const activeImgSrc = targetActiveItem.getAttribute("data-img-src");
         blurBackground.style.backgroundImage = `url('${activeImgSrc}')`;
+        
+        // Run the background cache fetcher for nearby images
+        preloadAdjacentImages(activeIndex);
       }
     };
 
-    // --- CLEAN TRACK AUDIO PIPELINE CONTROL ---
     const playSong = (src) => {
       if (!src) return;
       if (currentAudio) {
@@ -344,14 +360,14 @@
       currentAudio.volume = 0;
       currentAudio.play().then(() => {
         gsap.to(currentAudio, { volume: 1, duration: 0.5 });
-      }).catch(err => console.log("Audio waiting for interaction context", err));
+      }).catch(err => console.log("Audio waiting for player expansion interaction", err));
     };
 
     const stopSong = () => {
       if (currentAudio) {
         gsap.to(currentAudio, { 
           volume: 0, 
-          duration: 0.3, 
+          duration: 0.2, 
           onComplete: () => {
             if(currentAudio) {
               currentAudio.pause();
@@ -362,14 +378,13 @@
       }
     };
 
-    // --- SNAP TO CLOSEST INCREMENT ---
     const snapToCard = (targetRotation) => {
       const snappedRotation = Math.round(targetRotation / degree) * degree;
       const boundedRotation = Math.max(-maxScrollLimit, Math.min(maxScrollLimit, snappedRotation));
 
       gsap.to(".items", {
         rotation: boundedRotation,
-        duration: 0.45,
+        duration: 0.4,
         ease: "power2.out",
         onUpdate: checkActiveCard,
         onComplete: () => {
@@ -381,7 +396,6 @@
       });
     };
 
-    // --- DRAGGABLE & MOUSE WHEEL CONFIGURATION ---
     const draggable = () => {
       mainDraggable = Draggable.create(".items", {
         type: "rotation",
@@ -394,19 +408,15 @@
         }
       });
 
-      // MOUSE WHEEL SCROLL PORT LISTENERS
       window.addEventListener("wheel", (e) => {
         e.preventDefault();
-
         const currentRotation = gsap.getProperty(".items", "rotation");
         const scrollDirection = e.deltaY > 0 ? -1 : 1; 
         const nextTargetRotation = currentRotation + (scrollDirection * degree);
-
         snapToCard(nextTargetRotation);
       }, { passive: false });
     };
 
-    // --- LIGHTBOX INTERACTIVE EXPAND CONTROL ENGINE ---
     const setupLightbox = () => {
       const lightbox = document.getElementById("lightbox");
       const lightboxImg = document.getElementById("lightbox-img");
@@ -430,7 +440,6 @@
         };
 
         card.addEventListener("dblclick", handleExpandAction);
-
         card.addEventListener("touchstart", (e) => {
           const currentTime = new Date().getTime();
           const tapDelay = currentTime - lastTapTime;

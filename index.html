@@ -7,7 +7,6 @@
   
   <link rel="icon" type="image/png" href="miles.png">
   
-  <!-- Preload core animation libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
   
@@ -97,7 +96,7 @@
     }
 
     .items {
-      transform-origin: center 250vh;
+      /* Origin point now handled dynamically by JS config metrics */
       transform: rotate(0);
       user-select: none;
       display: flex;
@@ -109,7 +108,6 @@
       user-select: none;
       cursor: pointer;
       transform: translateX(-50%);
-      transform-origin: center 250vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -202,9 +200,7 @@
     }
 
     @media (max-width: 768px) {
-      .center { top: 44%; }
-      .items { transform-origin: center 180vh; }
-      .item { transform-origin: center 180vh; }
+      .center { top: 46%; } /* Shift container anchor slightly lower down for phone views */
       .card { width: 290px; height: 163px; }
       .info { font-size: 0.6rem; top: 15px; left: 15px; letter-spacing: 2px; padding: 6px 12px; }
       .maker-logo { height: 35px; top: 12px; right: 15px; }
@@ -249,11 +245,16 @@
     let mainDraggable = null;
     
     const imageSize = imageTitles.length;
-    const degree = 3.5; 
     const midIndex = (imageSize - 1) / 2;
+    
+    // --- RESPONSIVE STRUCTURAL GEOMETRY LOGIC ---
+    const isMobile = window.innerWidth <= 768;
+    
+    // Core Change: Tighten mobile rotation parameters to keep edges safely visible
+    const degree = isMobile ? 5.5 : 3.5; 
+    const transformOriginString = isMobile ? "center 110vh" : "center 250vh";
+    
     const maxScrollLimit = midIndex * degree;
-
-    // Cache tracker to avoid asking the server for the same file twice
     const preloadedSet = new Set();
 
     const formatDisplayTitle = (rawText) => {
@@ -263,14 +264,12 @@
         .join(' ');
     };
 
-    // --- HTML INJECTION ENGINE (.PNG Restored) ---
     const buildGallery = () => {
       let htmlContent = "";
       imageTitles.forEach((title) => {
         const cleanTitle = title.replace(/"/g, '&quot;');
         const formattedTitle = formatDisplayTitle(title);
         
-        // Retained your native browser optimization rule loading="lazy" 
         htmlContent += `
           <div class="item" data-audio="audio/${cleanTitle}.mp3" data-img-src="spdr/${cleanTitle}.png" data-title="${formattedTitle}">
             <div class="card">
@@ -287,10 +286,13 @@
     const items = gsap.utils.toArray(".item");
 
     const init = () => {
+      // Dynamic inline assignment of anchor vectors
+      gsap.set(itemsContainer, { transformOrigin: transformOriginString });
+
       items.forEach((image, index) => {
         const targetRotation = (index - midIndex) * degree;
         gsap.set(image, {
-          transformOrigin: "center 250vh",
+          transformOrigin: transformOriginString,
           rotation: targetRotation,
           scale: 1
         });
@@ -298,29 +300,23 @@
       checkActiveCard();
     };
 
-    // --- SMART PRELOAD ENGINE (LOOK-AHEAD FOR BACKGROUND CHANGING) ---
     const preloadAdjacentImages = (currentIndex) => {
-      // Looks at current image, next 2 images, and previous 2 images
       const lookAheadRange = [currentIndex, currentIndex + 1, currentIndex - 1, currentIndex + 2, currentIndex - 2];
-      
       lookAheadRange.forEach(idx => {
         if (idx >= 0 && idx < imageSize) {
           const cleanTitle = imageTitles[idx].replace(/"/g, '&quot;');
           const targetUrl = `spdr/${cleanTitle}.png`;
-          
           if (!preloadedSet.has(targetUrl)) {
             const imgCache = new Image();
             imgCache.src = targetUrl;
-            preloadedSet.add(targetUrl); // Keeps track of what's already cached
+            preloadedSet.add(targetUrl);
           }
         }
       });
     };
 
-    // --- EVALUATE CENTER CARD AND UPDATE BACKGROUND ---
     const checkActiveCard = () => {
       const containerRotation = gsap.getProperty(".items", "rotation");
-      
       let targetActiveItem = null;
       let closestAngleOffset = Infinity;
       let activeIndex = 0;
@@ -343,8 +339,6 @@
         targetActiveItem.classList.add("featured-active");
         const activeImgSrc = targetActiveItem.getAttribute("data-img-src");
         blurBackground.style.backgroundImage = `url('${activeImgSrc}')`;
-        
-        // Run the background cache fetcher for nearby images
         preloadAdjacentImages(activeIndex);
       }
     };
@@ -360,7 +354,7 @@
       currentAudio.volume = 0;
       currentAudio.play().then(() => {
         gsap.to(currentAudio, { volume: 1, duration: 0.5 });
-      }).catch(err => console.log("Audio waiting for player expansion interaction", err));
+      }).catch(err => console.log("Audio waiting for touch expand flag context", err));
     };
 
     const stopSong = () => {
